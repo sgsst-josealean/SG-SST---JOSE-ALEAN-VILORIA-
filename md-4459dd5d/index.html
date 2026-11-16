@@ -201,6 +201,20 @@ tr.cyc td { background: var(--accent-soft); color: var(--accent); font-weight: 7
 .linkc { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .linkc input { flex: 1 1 260px; min-width: 0; font: inherit; font-size: 13px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); }
 .linkc a.btn { text-decoration: none; display: inline-block; }
+.ptab td, .ptab th { vertical-align: middle; text-align: left !important; hyphens: none; } .ptab .pw small { display: block; line-height: 1.35; } .pw { display: flex; gap: 10px; align-items: center; } .pw b { display: block; font-weight: 600; font-size: 14px; } .pw small { color: var(--muted); font-size: 12px; }
+.pw-av { flex: 0 0 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: var(--mute-bg); color: var(--ink); border: 2px solid var(--mute); }
+.pw-av.bad { border-color: var(--bad); background: var(--bad-bg); } .pw-av.warn { border-color: var(--warn); background: var(--warn-bg); } .pw-av.ok { border-color: var(--ok); background: var(--ok-bg); }
+.pc { font: inherit; display: inline-flex; gap: 8px; align-items: center; text-align: left; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: default; }
+button.pc { cursor: pointer; } button.pc:hover { border-color: var(--accent); }
+.pc.bad { background: var(--bad-bg); border-color: var(--bad); } .pc.warn { background: var(--warn-bg); border-color: var(--warn); }
+.pc-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--mute); flex: 0 0 9px; } .pc-dot.ok { background: var(--ok); } .pc-dot.warn { background: var(--warn); } .pc-dot.bad { background: var(--bad); }
+.pc-t b { display: block; font-size: 13px; font-family: var(--f-mono); font-weight: 500; } .pc-t small { display: block; font-size: 11.5px; color: var(--muted); }
+.pc-name { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); margin-right: 4px; }
+.pc-list { display: flex; flex-direction: column; gap: 6px; align-items: start; }
+.pc-add { font: inherit; font-size: 12px; color: var(--accent); background: transparent; border: 1px dashed var(--line); border-radius: 10px; padding: 6px 10px; cursor: pointer; } .pc-add:hover { border-color: var(--accent); }
+.frente-h { font-size: 15px; margin: 20px 0 8px; padding: 8px 12px; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+.frente-h span { font-size: 12px; font-weight: 500; opacity: .8; }
+.pc-none { color: var(--muted); }
 .regf { margin-top: 12px; padding: 12px 14px; border: 1px dashed var(--accent); border-radius: 12px; display: grid; gap: 8px; font-size: 13.5px; }
 .regf p { margin: 0; color: var(--muted); } .regf p b { color: var(--ink); font-weight: 600; }
 .regf select { flex: 1 1 0; width: 100%; min-width: 0; max-width: 100%; } .regf .btn { flex: 0 0 auto; } .regf .linkc { flex-wrap: nowrap; } @media (max-width: 560px) { .regf .linkc { flex-wrap: wrap; } }
@@ -506,7 +520,7 @@ function viewEmpresa(main, R) {
 
   if (!R.iniciada) {
     main.append(h('section', {class: 'card'}, h('div', {class: 'empty'}, MODO === 'cliente' ? 'Su SG-SST está en la lista de seguimiento. A medida que su asesor reciba las evidencias, aquí aparecerán sus ciclos, su puntaje y sus pendientes.' : 'Esta empresa aún no tiene evidencias. Cuando registres la primera en la tabla de abajo, aquí aparecerán sus ciclos, su puntaje y sus pendientes.')));
-    if (MODO === 'cliente') return;
+    if (MODO === 'cliente') { const sp = seccionPersonal(R); if (sp) main.append(sp); return; }
   }
   if (R.iniciada) {
 
@@ -667,9 +681,10 @@ function confirmarQuitar(btn, x) {
   btn.dataset.armed = '1'; btn.textContent = '¿Seguro? Toca otra vez'; btn.classList.add('danger');
   setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = 'Quitar'; btn.classList.remove('danger'); } }, 4000);
 }
-/* Vencimientos del personal (solo en el tablero del asesor; nunca en las páginas de cliente) */
-let PERS = [];
-const TIPOS = [['Examen médico ocupacional', 12], ['Curso de trabajo en alturas (reentrenamiento)', 12], ['Certificado vocacional de alturas', 0], ['Curso de coordinador de alturas', 0], ['Inducción / reinducción en SST', 12], ['Afiliación ARL / PILA', 1], ['Licencia de conducción', 0], ['Otro documento', 0]];
+/* Vencimientos del personal (tablero del asesor; en las páginas de cliente solo las empresas de PERS_CLIENTE, de solo lectura) */
+const PERS_CLIENTE = ["MD"];
+let PERS = [{"empresa": "MD", "trabajador": "Andrés Morales Figueroa", "cargo": "Oficial encargado de obra", "proyecto": "Altair - Constructora Bolívar (calle 183)", "documento": "Afiliación ARL / PILA", "expedicion": "2026-10-20", "vence": "2026-11-20"}, {"empresa": "MD", "trabajador": "Carlos Andrés Díaz Manyoma", "cargo": "Oficial de fundidas de pisos", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Curso de trabajo en alturas (reentrenamiento)", "expedicion": "2025-10-22", "vence": "2027-04-22"}, {"empresa": "MD", "trabajador": "Carlos Andrés Díaz Manyoma", "cargo": "Oficial de fundidas de pisos", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Examen médico ocupacional", "expedicion": "2026-11-04", "vence": "2027-11-04"}, {"empresa": "MD", "trabajador": "Gabriel Valencia Palomeque", "cargo": "Oficial de fundidas de pisos", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Curso de trabajo en alturas (reentrenamiento)", "expedicion": "2025-09-07", "vence": "2027-03-07"}, {"empresa": "MD", "trabajador": "Gabriel Valencia Palomeque", "cargo": "Oficial de fundidas de pisos", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Examen médico ocupacional", "expedicion": "2026-11-04", "vence": "2027-11-04"}, {"empresa": "MD", "trabajador": "Hugo Rafael Rodríguez Barrantez", "cargo": "Oficial de enchape", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Afiliación ARL / PILA", "expedicion": "2026-10-20", "vence": "2026-11-20"}, {"empresa": "MD", "trabajador": "Hugo Rafael Rodríguez Barrantez", "cargo": "Oficial de enchape", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Curso de trabajo en alturas (reentrenamiento)", "expedicion": "2026-04-05", "vence": "2027-10-05"}, {"empresa": "MD", "trabajador": "Hugo Rafael Rodríguez Barrantez", "cargo": "Oficial de enchape", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Examen médico ocupacional", "expedicion": "2026-09-10", "vence": "2027-09-10"}, {"empresa": "MD", "trabajador": "José Alean Viloria", "cargo": "Asesor Externo SST", "proyecto": "Altair - Constructora Bolívar (calle 183)", "documento": "Afiliación ARL / PILA", "expedicion": "2026-10-20", "vence": "2026-11-20"}, {"empresa": "MD", "trabajador": "Pedro José Campos Díaz", "cargo": "Oficial de enchape", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá) · apoyo en Altair", "documento": "Afiliación ARL / PILA", "expedicion": "2026-10-20", "vence": "2026-11-20"}, {"empresa": "MD", "trabajador": "Pedro José Campos Díaz", "cargo": "Oficial de enchape", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá) · apoyo en Altair", "documento": "Curso de trabajo en alturas (reentrenamiento)", "expedicion": "2026-04-09", "vence": "2027-10-09"}, {"empresa": "MD", "trabajador": "Pedro José Campos Díaz", "cargo": "Oficial de enchape", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá) · apoyo en Altair", "documento": "Examen médico ocupacional", "expedicion": "2026-04-09", "vence": "2027-04-09"}, {"empresa": "MD", "trabajador": "Víctor Orlando Valencia Palomeque", "cargo": "Oficial de fundidas de pisos", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá) · apoyo en Altair", "documento": "Curso de trabajo en alturas (reentrenamiento)", "expedicion": "2026-11-11", "vence": "2028-05-11"}, {"empresa": "MD", "trabajador": "Víctor Orlando Valencia Palomeque", "cargo": "Oficial de fundidas de pisos", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá) · apoyo en Altair", "documento": "Examen médico ocupacional", "expedicion": "2026-11-10", "vence": "2027-11-10"}, {"empresa": "MD", "trabajador": "Wilner Garcés Cuero", "cargo": "Oficial gravillero", "proyecto": "Altair - Constructora Bolívar (calle 183)", "documento": "Afiliación ARL / PILA", "expedicion": "2026-10-20", "vence": "2026-11-20"}, {"empresa": "MD", "trabajador": "Yeni Andrea Galeano Moyano", "cargo": "Inspectora SST", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Afiliación ARL / PILA", "expedicion": "2026-10-20", "vence": "2026-11-20"}, {"empresa": "MD", "trabajador": "Yeni Andrea Galeano Moyano", "cargo": "Inspectora SST", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Curso 20 horas SG-SST (actualización)", "expedicion": "2026-02-18", "vence": "2029-02-18"}, {"empresa": "MD", "trabajador": "Yeni Andrea Galeano Moyano", "cargo": "Inspectora SST", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Curso de trabajo en alturas (reentrenamiento)", "expedicion": "2026-06-10", "vence": "2027-12-10"}, {"empresa": "MD", "trabajador": "Yeni Andrea Galeano Moyano", "cargo": "Inspectora SST", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Examen médico ocupacional", "expedicion": "2026-06-09", "vence": "2027-06-09"}, {"empresa": "MD", "trabajador": "Yeni Andrea Galeano Moyano", "cargo": "Inspectora SST", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Licencia en SST", "expedicion": "2021-08-23", "vence": "2031-08-23"}, {"empresa": "MD", "trabajador": "Yeonis Francisco Zambrano Florián", "cargo": "Oficial de enchape", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá) · apoyo en Altair", "documento": "Afiliación ARL / PILA", "expedicion": "2026-10-20", "vence": "2026-11-20"}, {"empresa": "MD", "trabajador": "Yeonis Francisco Zambrano Florián", "cargo": "Oficial de enchape", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá) · apoyo en Altair", "documento": "Curso de trabajo en alturas (reentrenamiento)", "expedicion": "2026-01-16", "vence": "2027-07-16"}, {"empresa": "MD", "trabajador": "Yeonis Francisco Zambrano Florián", "cargo": "Oficial de enchape", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá) · apoyo en Altair", "documento": "Examen médico ocupacional", "expedicion": "2026-01-15", "vence": "2027-01-15"}, {"empresa": "MD", "trabajador": "Yon Fredy Anchico Valencia", "cargo": "Auxiliar de obra (ayudante)", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Afiliación ARL / PILA", "expedicion": "2026-10-20", "vence": "2026-11-20"}, {"empresa": "MD", "trabajador": "Yon Fredy Anchico Valencia", "cargo": "Auxiliar de obra (ayudante)", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Curso de trabajo en alturas (reentrenamiento)", "expedicion": "2026-10-16", "vence": "2028-04-16"}, {"empresa": "MD", "trabajador": "Yon Fredy Anchico Valencia", "cargo": "Auxiliar de obra (ayudante)", "proyecto": "Jardines de Fontanar - Amarilo (Cajicá)", "documento": "Examen médico ocupacional", "expedicion": "2026-01-10", "vence": "2027-01-10"}];
+const TIPOS = [['Examen médico ocupacional', 12], ['Curso de trabajo en alturas (reentrenamiento)', 18], ['Certificado vocacional de alturas', 0], ['Curso de coordinador de alturas', 0], ['Inducción / reinducción en SST', 12], ['Afiliación ARL / PILA', 1], ['Licencia de conducción', 0], ['Otro documento', 0]];
 const AVISO_P = 30;
 const masMeses = (iso, m) => { const [y, mo, d] = iso.split('-').map(Number); const t = new Date(Date.UTC(y, mo - 1 + m, d)); return t.toISOString().slice(0, 10); };
 function estadoPers(p) {
@@ -689,63 +704,111 @@ function filaPers(p, conEmpresa) {
   return h('div', {class: 'pi', style: '--sc:var(--' + p.cls + ')'}, h('span', {class: 'n'}, conEmpresa ? CORTO[p.empresa] : p.trabajador.split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase()),
     h('div', {class: 't'}, p.trabajador + ' · ' + p.documento, h('small', null, [p.cargo, p.proyecto].filter(Boolean).join(' · ') || 'Sin cargo')), right);
 }
+const PCOLS = [['Examen médico ocupacional', 'Examen médico'], ['Curso de trabajo en alturas (reentrenamiento)', 'Curso de alturas'], ['Afiliación ARL / PILA', 'PILA']];
+const RANGO = {'Vencido': 0, 'Por vencer': 1, 'Al día': 2, 'Sin fecha': 3};
+function porTrabajador(emp) {
+  const m = new Map();
+  for (const p of persDe(emp)) { const k = p.empresa + '|' + p.trabajador; if (!m.has(k)) m.set(k, {empresa: p.empresa, trabajador: p.trabajador, cargo: p.cargo, proyecto: p.proyecto, docs: []}); m.get(k).docs.push(p); }
+  const ws = [...m.values()];
+  for (const w of ws) { w.peor = w.docs.reduce((a, d) => (RANGO[d.est] < RANGO[a.est] ? d : a), w.docs[0]); }
+  return ws.sort((a, b) => RANGO[a.peor.est] - RANGO[b.peor.est] || (a.peor.dias ?? 1e9) - (b.peor.dias ?? 1e9) || a.trabajador.localeCompare(b.trabajador));
+}
+function celdaDoc(w, d, tipo) {
+  if (!d) {
+    if (!CAN) return h('span', {class: 'pc-none'}, '—');
+    const b = h('button', {class: 'pc-add', type: 'button', title: 'Agregar ' + tipo}, '+ Agregar');
+    b.onclick = () => abrirPersonal(w.empresa, null, {trabajador: w.trabajador, cargo: w.cargo, proyecto: w.proyecto, documento: tipo}); return b;
+  }
+  const body = [h('span', {class: 'pc-dot ' + d.cls}), h('span', {class: 'pc-t'}, h('b', null, fmt(pd(d.vence))), h('small', null, d.est === 'Al día' ? 'al día' : diasTxt(d)))];
+  if (!CAN) return h('span', {class: 'pc ' + d.cls}, ...body);
+  const b = h('button', {class: 'pc ' + d.cls, type: 'button', title: 'Renovar o corregir'}, ...body); b.onclick = () => abrirPersonal(w.empresa, d); return b;
+}
 function seccionPersonal(R) {
-  if (MODO === 'cliente') return null;
-  const ps = persDe(R.empresa);
-  const n = (e) => ps.filter((p) => p.est === e).length;
-  const add = CAN ? h('button', {class: 'btn', type: 'button'}, '+ Agregar documento') : null;
+  if (MODO === 'cliente' && !persDe(R.empresa).length) return null;
+  const ws = porTrabajador(R.empresa);
+  const add = CAN ? h('button', {class: 'btn', type: 'button'}, '+ Agregar trabajador o documento') : null;
   if (add) add.onclick = () => abrirPersonal(R.empresa, null);
   const sec = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'personal'}, 'Vencimientos del personal'),
-    h('p', null, 'Documentos de cada trabajador que tienen fecha de vencimiento (examen médico, curso de alturas, reinducción…). Aviso desde ' + AVISO_P + ' días antes. Solo lo ves tú: no sale en la página del cliente.')), add));
-  if (!ps.length) { sec.append(h('div', {class: 'empty'}, CAN ? 'Aún no hay documentos del personal. Usa «+ Agregar documento» para el primero.' : 'Aún no hay documentos del personal registrados.')); return sec; }
-  sec.append(h('div', {class: 'tools'}, pill(n('Vencido') + ' vencidos', 'bad'), pill(n('Por vencer') + ' por vencer', 'warn'), pill(n('Al día') + ' al día', 'ok')));
-  const list = h('div', {class: 'pend'}); ps.forEach((p) => list.append(filaPers(p, false))); sec.append(list); return sec;
+    h('p', null, MODO === 'cliente' ? 'Una fila por trabajador, separada por frente de obra, con la fecha de vencimiento de cada documento. El aviso empieza ' + AVISO_P + ' días antes. Esta información es de consulta y la actualiza su Asesor Externo en SST.' : 'Una fila por trabajador con la fecha de vencimiento de cada documento. Aviso desde ' + AVISO_P + ' días antes. Toca una fecha para renovarla o corregirla. ' + (PERS_CLIENTE.includes(R.empresa) ? 'El cliente también lo ve en su página, solo para consulta (sin cédulas ni soportes).' : 'Solo lo ves tú: no sale en la página del cliente.'))), add));
+  if (!ws.length) { sec.append(h('div', {class: 'empty'}, CAN ? 'Aún no hay documentos del personal. Usa «+ Agregar trabajador o documento».' : 'Aún no hay documentos del personal registrados.')); return sec; }
+  const n = (e) => ws.filter((w) => w.peor.est === e).length;
+  sec.append(h('div', {class: 'tools'}, pill(ws.length + (ws.length === 1 ? ' trabajador' : ' trabajadores'), 'mute'), n('Vencido') ? pill(n('Vencido') + ' con algo vencido', 'bad') : null, n('Por vencer') ? pill(n('Por vencer') + ' con algo por vencer', 'warn') : null, n('Al día') ? pill(n('Al día') + ' al día', 'ok') : null));
+  const frente = (w) => String(w.proyecto || 'Sin frente de obra asignado').split(' · ')[0].trim();
+  const grupos = new Map();
+  for (const w of ws) { const f = frente(w); if (!grupos.has(f)) grupos.set(f, []); grupos.get(f).push(w); }
+  const orden = [...grupos.keys()].sort((a, b) => (a.startsWith('Sin') - b.startsWith('Sin')) || a.localeCompare(b));
+  for (const f of orden) {
+    const g = grupos.get(f);
+    const tb = h('tbody');
+    for (const w of g) {
+      const fijos = PCOLS.map(([t]) => w.docs.find((d) => d.documento === t));
+      const otros = w.docs.filter((d) => !PCOLS.some(([t]) => t === d.documento));
+      const nota = String(w.proyecto || '').split(' · ').slice(1).join(' · ');
+      tb.append(h('tr', null,
+        h('td', null, h('div', {class: 'pw'}, h('span', {class: 'pw-av ' + w.peor.cls}, w.trabajador.split(/\s+/).slice(0, 2).map((x) => x[0] || '').join('').toUpperCase()), h('div', null, h('b', null, w.trabajador), h('small', null, w.cargo || 'Sin cargo'), nota ? h('small', null, nota.charAt(0).toUpperCase() + nota.slice(1)) : null))),
+        ...PCOLS.map(([t], i) => h('td', null, celdaDoc(w, fijos[i], t))),
+        h('td', null, otros.length ? h('div', {class: 'pc-list'}, ...otros.map((d) => { const c = celdaDoc(w, d, d.documento); c.prepend(h('span', {class: 'pc-name'}, d.documento)); return c; })) : h('span', {class: 'pc-none'}, '—'))));
+    }
+    sec.append(h('h3', {class: 'frente-h'}, 'Frente de obra: ' + f, h('span', null, g.length + (g.length === 1 ? ' trabajador' : ' trabajadores'))));
+    sec.append(h('div', {class: 'tw'}, h('table', {class: 'ptab'}, h('thead', null, h('tr', null, h('th', {style: 'min-width:240px'}, 'Trabajador'), ...PCOLS.map(([, l]) => h('th', null, l)), h('th', {style: 'min-width:200px'}, 'Otros documentos'))), tb)));
+  }
+  return sec;
 }
 function panoramaPersonal() {
   if (MODO === 'cliente') return null;
-  const ps = persDe(null).filter((p) => p.est === 'Vencido' || p.est === 'Por vencer');
+  const ws = porTrabajador(null).filter((w) => w.peor.est === 'Vencido' || w.peor.est === 'Por vencer');
   const sec = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'personal'}, 'Personal: documentos vencidos o por vencer'),
-    h('p', null, 'Trabajadores de todas las empresas con un documento vencido o que vence en los próximos ' + AVISO_P + ' días. Para agregar o renovar, entra a la empresa.'))));
-  sec.append(ps.length ? (() => { const l = h('div', {class: 'pend'}); ps.slice(0, 30).forEach((p) => l.append(filaPers(p, true))); return l; })()
-    : h('div', {class: 'empty'}, h('b', null, '✓ '), PERS.length ? 'Ningún documento del personal vence en los próximos ' + AVISO_P + ' días.' : 'Aún no hay documentos del personal registrados.'));
-  return sec;
+    h('p', null, 'Trabajadores de todas las empresas con algún documento vencido o que vence en los próximos ' + AVISO_P + ' días. Para renovar, entra a la empresa.'))));
+  if (!ws.length) { sec.append(h('div', {class: 'empty'}, h('b', null, '✓ '), PERS.length ? 'Ningún documento del personal vence en los próximos ' + AVISO_P + ' días.' : 'Aún no hay documentos del personal registrados.')); return sec; }
+  const l = h('div', {class: 'pend'});
+  for (const w of ws) {
+    const malos = w.docs.filter((d) => d.est === 'Vencido' || d.est === 'Por vencer');
+    l.append(h('div', {class: 'pi', style: '--sc:var(--' + w.peor.cls + ')'}, h('span', {class: 'n'}, CORTO[w.empresa]),
+      h('div', {class: 't'}, w.trabajador, h('small', null, (w.proyecto ? String(w.proyecto).split(' · ')[0] + ' · ' : '') + malos.map((d) => (PCOLS.find(([t]) => t === d.documento) || [0, d.documento])[1] + ': ' + diasTxt(d)).join(' · '))),
+      h('div', {class: 'r'}, pill(w.peor.est, w.peor.cls))));
+  }
+  sec.append(l); return sec;
 }
 function quitarPers(btn, p) {
   if (btn.dataset.armed) { btn.disabled = true; DB.collection('personal').doc(p.id).delete().then(() => toast('Documento quitado.')).catch(() => { btn.disabled = false; toast('No se pudo quitar.'); }); return; }
   btn.dataset.armed = '1'; btn.textContent = '¿Seguro?'; btn.classList.add('danger');
   setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = 'Quitar'; btn.classList.remove('danger'); } }, 4000);
 }
-function abrirPersonal(emp, p) {
+function abrirPersonal(emp, p, pre) {
+  pre = pre || {};
   MODAL = true;
   const ov = h('div', {class: 'ov', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'per-titulo'});
   const f = h('form', {class: 'modal'});
   const conocidos = [...new Map(PERS.filter((x) => x.empresa === emp).map((x) => [x.trabajador, x])).values()];
   const dl = h('datalist', {id: 'per-lista'}, ...conocidos.map((x) => h('option', {value: x.trabajador})));
-  const tra = h('input', {type: 'text', id: 'per-tra', list: 'per-lista', required: 'required', maxlength: '80', placeholder: 'Nombre del trabajador', value: p ? p.trabajador : ''});
-  const car = h('input', {type: 'text', id: 'per-car', maxlength: '80', placeholder: 'Ej.: Oficial de enchape', value: p ? (p.cargo || '') : ''});
-  const pro = h('input', {type: 'text', id: 'per-pro', maxlength: '80', placeholder: 'Ej.: Jardines de Fontanar - Amarilo', value: p ? (p.proyecto || '') : ''});
+  const tra = h('input', {type: 'text', id: 'per-tra', list: 'per-lista', required: 'required', maxlength: '80', placeholder: 'Nombre del trabajador', value: p ? p.trabajador : (pre.trabajador || '')});
+  const car = h('input', {type: 'text', id: 'per-car', maxlength: '80', placeholder: 'Ej.: Oficial de enchape', value: p ? (p.cargo || '') : (pre.cargo || '')});
+  const pro = h('input', {type: 'text', id: 'per-pro', maxlength: '80', placeholder: 'Ej.: Jardines de Fontanar - Amarilo', value: p ? (p.proyecto || '') : (pre.proyecto || '')});
   tra.oninput = () => { const k = conocidos.find((x) => x.trabajador === tra.value); if (k) { if (!car.value) car.value = k.cargo || ''; if (!pro.value) pro.value = k.proyecto || ''; } };
   const tipo = h('select', {id: 'per-doc'}, ...TIPOS.map(([t]) => h('option', {value: t}, t)));
   if (p) tipo.value = TIPOS.some(([t]) => t === p.documento) ? p.documento : 'Otro documento';
+  else if (pre.documento) tipo.value = pre.documento;
   const otro = h('input', {type: 'text', id: 'per-otro', maxlength: '80', placeholder: 'Nombre del documento', value: p && !TIPOS.some(([t]) => t === p.documento) ? p.documento : ''});
-  const exp = h('input', {type: 'date', id: 'per-exp', max: hoyISO(), value: p ? '' : ''});
-  const ven = h('input', {type: 'date', id: 'per-ven', required: 'required', value: ''});
-  let venTocado = false; ven.oninput = () => { venTocado = true; };
-  const sugerir = () => { const m = (TIPOS.find(([t]) => t === tipo.value) || [0, 0])[1]; if (!venTocado && exp.value && m) ven.value = masMeses(exp.value, m); };
+  const exp = h('input', {type: 'date', id: 'per-exp', max: hoyISO(), value: p ? (p.expedicion || '') : ''});
+  const ven = h('input', {type: 'date', id: 'per-ven', required: 'required', value: p ? (p.vence || '') : ''});
+  let venTocado = false; let expIni = exp.value; ven.oninput = () => { venTocado = true; };
+  const sugerir = () => { if (p && exp.value !== expIni) venTocado = false; const m = (TIPOS.find(([t]) => t === tipo.value) || [0, 0])[1]; if (!venTocado && exp.value && m) ven.value = masMeses(exp.value, m); };
   const verOtro = () => { otro.parentElement && (otroWrap.hidden = tipo.value !== 'Otro documento'); };
   const otroWrap = h('div', {style: 'display:grid;gap:6px'}, h('label', {for: 'per-otro'}, 'Cuál documento'), otro);
   tipo.onchange = () => { verOtro(); sugerir(); }; exp.oninput = sugerir;
   const err = h('p', {class: 'err', hidden: 'hidden'});
   const guardar = h('button', {class: 'btn', type: 'submit'}, 'Guardar');
   const cancelar = h('button', {class: 'btn ghost', type: 'button'}, 'Cancelar');
+  const borrar = p ? h('button', {class: 'btn ghost danger', type: 'button', style: 'margin-right:auto'}, 'Quitar') : null;
+  if (borrar) borrar.onclick = () => { if (!borrar.dataset.armed) { borrar.dataset.armed = '1'; borrar.textContent = '¿Seguro? Toca otra vez'; return; } borrar.disabled = true; DB.collection('personal').doc(p.id).delete().then(() => { ov.remove(); MODAL = false; toast('Documento quitado.'); render(true); }).catch(() => { borrar.disabled = false; toast('No se pudo quitar.'); }); };
   const cerrar = () => { ov.remove(); MODAL = false; render(true); };
   cancelar.onclick = cerrar; ov.addEventListener('click', (e) => { if (e.target === ov) cerrar(); });
   ov.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrar(); });
-  f.append(h('div', {class: 'eyebrow'}, CORTO[emp] + ' · Personal'), h('h2', {id: 'per-titulo'}, p ? 'Renovar documento' : 'Agregar documento de un trabajador'),
-    h('p', {class: 'mut'}, 'Si escribes la fecha de expedición, el vencimiento se propone solo (examen médico, curso de alturas y reinducción: 1 año; PILA: 1 mes). Puedes cambiarlo.'),
+  f.append(h('div', {class: 'eyebrow'}, CORTO[emp] + ' · Personal'), h('h2', {id: 'per-titulo'}, p ? 'Renovar o corregir: ' + p.documento : 'Agregar documento de un trabajador'),
+    h('p', {class: 'mut'}, 'Si escribes la fecha de expedición, el vencimiento se propone solo (curso de alturas: 18 meses, Res. 4272 de 2021; examen médico y reinducción: 1 año; PILA: 1 mes). Puedes cambiarlo.'),
     h('label', {for: 'per-tra'}, 'Trabajador'), tra, dl, h('label', {for: 'per-car'}, 'Cargo (opcional)'), car, h('label', {for: 'per-pro'}, 'Proyecto u obra (opcional)'), pro,
     h('label', {for: 'per-doc'}, 'Documento'), tipo, otroWrap,
-    h('label', {for: 'per-exp'}, 'Fecha de expedición (opcional)'), exp, h('label', {for: 'per-ven'}, 'Fecha de vencimiento'), ven, err, h('div', {class: 'acts'}, cancelar, guardar));
+    h('label', {for: 'per-exp'}, 'Fecha de expedición (opcional)'), exp, h('label', {for: 'per-ven'}, 'Fecha de vencimiento'), ven, err, h('div', {class: 'acts'}, borrar, cancelar, guardar));
   otroWrap.hidden = tipo.value !== 'Otro documento';
   f.addEventListener('submit', async (e) => {
     e.preventDefault(); err.hidden = true;
