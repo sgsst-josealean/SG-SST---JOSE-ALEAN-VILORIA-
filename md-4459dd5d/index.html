@@ -142,6 +142,14 @@ h3 { font-size: 15px; font-weight: 600; }
 .bv-s { font-size: clamp(14px, 1.7vw, 15.5px); font-weight: 500; color: #E6F0F2; margin-top: 8px; line-height: 1.5; }
 .bv-s b { color: #F3DDA6; font-weight: 700; }
 .bv-h { font-family: var(--f-display); font-size: clamp(24px, 3.4vw, 32px); font-weight: 600; color: #FFFFFF; margin-top: 4px; line-height: 1.2; }
+.bv-tx { flex: 1; min-width: 0; }
+.bv-pt { flex: none; position: relative; z-index: 1; text-align: center; background: #FFF8E7; border-radius: 16px; padding: 12px 20px 10px; min-width: 150px; box-shadow: 0 6px 18px rgba(0,0,0,.18); border: 2px solid #F3DDA6; }
+.bv-pt .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: #3F6D79; }
+.bv-pt .v { font-family: var(--f-display); font-size: clamp(36px, 5vw, 48px); font-weight: 700; line-height: 1.05; color: #7A2440; margin-top: 2px; }
+.bv-pt .v small { font-size: .5em; font-weight: 700; margin-left: 2px; }
+.bv-pt .v.sin { font-size: 22px; padding: 8px 0 4px; }
+.bv-pt .e { font-size: 12px; font-weight: 700; margin-top: 4px; padding: 3px 10px; border-radius: 999px; display: inline-block; }
+@media (max-width: 640px) { .bienv { flex-wrap: wrap; } .bv-pt { width: 100%; padding: 10px 14px; } .bv-pt .v.sin { font-size: 20px; padding: 4px 0 2px; } }
 .frase { position: relative; display: flex; gap: 14px; align-items: center; margin: -8px 0 18px; padding: 16px 24px 16px 18px; border-radius: var(--r); background: #FBF3F5; border: 1px solid #E9CDD5; border-left: 5px solid #7A2440; box-shadow: var(--shadow); overflow: hidden; }
 .frase .fr-q { font-family: Georgia, 'Times New Roman', serif; font-size: 52px; line-height: .6; color: #8E2E4A; opacity: .9; margin-top: 10px; flex: none; }
 .frase .fr-t { margin: 0; font-family: var(--f-display); font-style: normal; font-weight: 600; font-size: clamp(16.5px, 2vw, 19.5px); line-height: 1.45; color: #7A2440; transition: opacity .6s ease, transform .6s ease; }
@@ -569,7 +577,7 @@ function viewEmpresa(main, R) {
     h('div', {class: 'bv-tx'}, h('div', {class: 'bv-k'}, 'Bienvenido a su SG-SST en línea'),
       R.saludo ? h('div', {class: 'bv-h'}, saludoHora() + ', ' + R.saludo + '.') : null,
       h('div', {class: 'bv-t'}, 'Haga seguimiento a su Sistema de Gestión de Seguridad y Salud en el Trabajo, siempre al día.'),
-      h('div', {class: 'bv-s'}, 'Consulte su puntaje, el avance por ciclo PHVA y lo que debe entregar. ', SYNC ? h('span', null, 'Última actualización: ', h('b', null, fmt(pd(SYNC))), '.') : null))));
+      h('div', {class: 'bv-s'}, 'Consulte su puntaje, el avance por ciclo PHVA y lo que debe entregar. ', SYNC ? h('span', null, 'Última actualización: ', h('b', null, fmt(pd(SYNC))), '.') : null)), puntoBienv(R)));
   if (MODO === 'cliente') main.append(fraseSST());
   main.append(hero, novedad(R));
   const enl = enlaceCliente(R); if (enl) main.append(enl);
@@ -896,6 +904,16 @@ render = function (keep) { if (MODAL) return; recompute(); if (keep) { const y =
 
 addEventListener('hashchange', () => { render(); scrollTo({top: 0}); });
 render();
+/* Puntaje actual del SG-SST en el encabezado de bienvenida (páginas de cliente) */
+function puntoBienv(R) {
+  const EC = {'CRÍTICO': ['#FBE3E3', '#A12222'], 'MODERADAMENTE ACEPTABLE': ['#FFF0C9', '#8A5A00'], 'ACEPTABLE': ['#DDF3E8', '#1F6B4F']};
+  if (R.puntaje == null) return h('div', {class: 'bv-pt', 'aria-label': 'Puntaje actual del SG-SST'}, h('div', {class: 'k'}, 'Puntaje actual del SG-SST'),
+    h('div', {class: 'v sin'}, R.iniciada ? 'En evaluación' : 'Por iniciar'), h('div', {class: 'e', style: 'background:#E6EEF0;color:#3F6D79'}, R.iniciada ? R.docs + ' de 60 documentos' : 'Aún sin evaluación'));
+  const c = EC[R.valoracion] || ['#E6EEF0', '#3F6D79'];
+  return h('div', {class: 'bv-pt', 'aria-label': 'Puntaje actual del SG-SST'}, h('div', {class: 'k'}, 'Puntaje actual del SG-SST'),
+    h('div', {class: 'v'}, String(Math.round(R.puntaje)), h('small', null, '%')),
+    h('div', {class: 'e', style: 'background:' + c[0] + ';color:' + c[1]}, R.valoracion === 'MODERADAMENTE ACEPTABLE' ? 'Moderadamente aceptable' : R.valoracion.charAt(0) + R.valoracion.slice(1).toLowerCase()));
+}
 /* Saludo según la hora de Bogotá y frase de SG-SST que cambia cada 20 segundos (páginas de cliente) */
 function saludoHora() { const H = Number(new Intl.DateTimeFormat('en-US', {timeZone: 'America/Bogota', hour: 'numeric', hour12: false}).format(new Date())) % 24; return H < 12 ? 'Buenos días' : H < 19 ? 'Buenas tardes' : 'Buenas noches'; }
 function frasesSST() { return [
