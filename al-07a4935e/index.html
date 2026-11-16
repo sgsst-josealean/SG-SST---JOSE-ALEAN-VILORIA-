@@ -200,6 +200,9 @@ tr.cyc td { background: var(--accent-soft); color: var(--accent); font-weight: 7
 .linkc { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .linkc input { flex: 1 1 260px; min-width: 0; font: inherit; font-size: 13px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); }
 .linkc a.btn { text-decoration: none; display: inline-block; }
+.regf { margin-top: 12px; padding: 12px 14px; border: 1px dashed var(--accent); border-radius: 12px; display: grid; gap: 8px; font-size: 13.5px; }
+.regf p { margin: 0; color: var(--muted); } .regf p b { color: var(--ink); font-weight: 600; }
+.regf select { flex: 1 1 0; width: 100%; min-width: 0; max-width: 100%; } .regf .btn { flex: 0 0 auto; } .regf .linkc { flex-wrap: nowrap; } @media (max-width: 560px) { .regf .linkc { flex-wrap: wrap; } }
 .btn.danger { color: var(--bad); border-color: var(--bad); }
 .lnk { color: var(--accent); font-size: 12.5px; font-weight: 600; }
 .ov { position: fixed; inset: 0; z-index: 50; background: rgba(5,12,10,.55); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
@@ -534,6 +537,13 @@ function viewEmpresa(main, R) {
       h('div', {class: 't'}, r.estandar, h('small', null, (MODO === 'cliente' ? 'Enviar: ' : 'Pedir: ') + r.evidencia + (r.vence != null ? ' · fecha límite ' + fmt(r.vence) : ''))),
       h('div', {class: 'r'}, pill(r.estado, ECLS[r.estado]), r.estado === 'Atrasado' ? h('small', null, (-r.faltan) + ' días tarde') : r.estado === 'Por vencer' ? h('small', null, r.faltan === 0 ? 'vence hoy' : 'faltan ' + r.faltan + ' días') : null, btnReg(r))))
       : [h('div', {class: 'empty'}, h('b', null, '✓ '), c.docs < c.total ? 'Sin entregas pendientes en ' + CNOM[cur] + '. Faltan ' + (c.total - c.docs) + ' documentos por elaborar.' : 'Sin pendientes en ' + CNOM[cur] + ': la empresa está al día.')]));
+    const faltan = R.rs.filter((r) => r.ciclo === cur && r.estado === 'Falta documento');
+    if (CAN && faltan.length) {
+      const sel = h('select', {class: 'search', 'aria-label': 'Estándar sin documento'}, ...faltan.map((r) => h('option', {value: r.numero}, r.numero + ' · ' + r.estandar)));
+      const b = h('button', {class: 'btn', type: 'button'}, '+ Registrar evidencia');
+      b.onclick = () => abrirRegistro(faltan.find((r) => r.numero === sel.value));
+      list.append(h('div', {class: 'regf'}, h('p', null, h('b', null, '¿Te enviaron algo de un estándar que aún no tiene documento? '), 'Escógelo aquí y regístralo.'), h('div', {class: 'linkc'}, sel, b)));
+    }
   };
   if (window.SG_INFORME) {
     tabs.remove();
@@ -675,7 +685,8 @@ render();
   const c = window.claude;
   const [db, user, assets] = await Promise.all([c?.use?.('db') ?? null, c?.use?.('user') ?? null, c?.use?.('assets') ?? null]);
   DB = db; ASSETS = assets;
-  CAN = MODO !== 'cliente' && !!(db && user && user.canEdit && user.canEdit());
+  let ed = false; try { ed = !!(user && user.canEdit && await user.canEdit()); } catch (e) { ed = false; }
+  CAN = MODO !== 'cliente' && !!db && ed;
   if (MODO === 'cliente') return;
   if (!db) { LIVE = 'consulta'; render(true); return; }
   db.collection('evidencias').onSnapshot((snap) => {
