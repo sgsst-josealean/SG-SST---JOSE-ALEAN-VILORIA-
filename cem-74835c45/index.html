@@ -27,6 +27,7 @@
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.25); color-scheme: dark; }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
 .app { display: grid; grid-template-columns: 272px minmax(0, 1fr); min-height: 100vh; }
 
@@ -210,7 +211,7 @@ tr.cyc td { background: var(--accent-soft); color: var(--accent); font-weight: 7
 .modal h2 { font-size: 18px; margin-bottom: 2px; }
 .modal .mut { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
 .modal label { font-size: 13px; font-weight: 600; margin-top: 6px; }
-.modal input[type=date], .modal textarea, .modal input[type=file] { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 10px; padding: 9px 12px; width: 100%; }
+.modal input[type=text], .modal select, .modal input[type=date], .modal textarea, .modal input[type=file] { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 10px; padding: 9px 12px; width: 100%; }
 .modal textarea { resize: vertical; }
 .modal .chk { display: flex; gap: 10px; align-items: start; font-weight: 500; background: var(--ok-bg); padding: 10px 12px; border-radius: 10px; }
 .modal .chk input { margin-top: 3px; accent-color: var(--ok); }
@@ -300,7 +301,7 @@ function estadoDe(r) {
   return {...r, estado, vence, faltan: vence == null ? null : Math.round((vence - HOY) / 864e5)};
 }
 let REG = [{"id": "cem-114-2026-11", "empresa": "CEM", "numero": "1.1.4", "fecha": "2026-11-11", "cumple": false, "creado": "2026-11-15T23:06:00Z"}];      // registros de evidencia (en el tablero se cargan en vivo; en la página del cliente vienen incluidos)
-const SYNC = "2026-11-15";
+const SYNC = "2026-11-16";
 let ROWS = [], RES = [];
 let DB = null, ASSETS = null, CAN = false, LIVE = MODO === 'cliente' ? 'vivo' : 'cargando';
 function aplicarRegistros(r) {
@@ -460,7 +461,7 @@ function viewPanorama(main) {
   const tlCard = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'vencimientos'}, 'Próximos vencimientos'), h('p', null, 'Lo que cada empresa debe enviar pronto, agrupado por fecha límite.'))),
     prox.length ? tl : h('div', {class: 'empty'}, h('b', null, '✓ '), 'No hay entregas por vencer ni atrasadas.'));
 
-  main.append(head, kpis, h('section', null, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'empresas'}, 'Cómo va cada empresa'), h('p', null, 'El puntaje es la calificación de la evaluación inicial 2.3.1. La barra de colores dice si la empresa envía a tiempo lo que se repite: PILA, capacitaciones, indicadores, ATS e inspecciones.'))), cos), tlCard, leyenda());
+  main.append(head, kpis, h('section', null, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'empresas'}, 'Cómo va cada empresa'), h('p', null, 'El puntaje es la calificación de la evaluación inicial 2.3.1. La barra de colores dice si la empresa envía a tiempo lo que se repite: PILA, capacitaciones, indicadores, ATS e inspecciones.'))), cos), tlCard, panoramaPersonal(), leyenda());
 }
 
 function leyenda() {
@@ -557,6 +558,7 @@ function viewEmpresa(main, R) {
   const pend = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'pendientes'}, MODO === 'cliente' ? 'Lo que deben enviar' : 'Qué pedirle a la empresa'), h('p', null, MODO === 'cliente' ? 'Pendientes ciclo por ciclo, con el soporte que deben enviar a su asesor y la fecha límite.' : 'Pendientes ciclo por ciclo, con lo que debe enviar y la fecha límite.'))), tabs, list);
   main.append(h('div', {class: 'row3'}, entregas, pend));
   }
+  { const sp = seccionPersonal(R); if (sp) main.append(sp); }
 
   // Tabla de los 60 estándares
   let fEst = 'Todos', q = '';
@@ -665,6 +667,98 @@ function confirmarQuitar(btn, x) {
   btn.dataset.armed = '1'; btn.textContent = '¿Seguro? Toca otra vez'; btn.classList.add('danger');
   setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = 'Quitar'; btn.classList.remove('danger'); } }, 4000);
 }
+/* Vencimientos del personal (solo en el tablero del asesor; nunca en las páginas de cliente) */
+let PERS = [];
+const TIPOS = [['Examen médico ocupacional', 12], ['Curso de trabajo en alturas (reentrenamiento)', 12], ['Certificado vocacional de alturas', 0], ['Curso de coordinador de alturas', 0], ['Inducción / reinducción en SST', 12], ['Afiliación ARL / PILA', 1], ['Licencia de conducción', 0], ['Otro documento', 0]];
+const AVISO_P = 30;
+const masMeses = (iso, m) => { const [y, mo, d] = iso.split('-').map(Number); const t = new Date(Date.UTC(y, mo - 1 + m, d)); return t.toISOString().slice(0, 10); };
+function estadoPers(p) {
+  const v = pd(p.vence); if (v == null) return {...p, est: 'Sin fecha', cls: 'mute', dias: null};
+  const dias = Math.round((v - HOY) / 864e5);
+  return {...p, dias, est: dias < 0 ? 'Vencido' : dias <= AVISO_P ? 'Por vencer' : 'Al día', cls: dias < 0 ? 'bad' : dias <= AVISO_P ? 'warn' : 'ok'};
+}
+const persDe = (emp) => PERS.filter((p) => !emp || p.empresa === emp).map(estadoPers).sort((a, b) => (a.dias == null) - (b.dias == null) || (a.dias ?? 0) - (b.dias ?? 0));
+const diasTxt = (p) => p.dias == null ? 'sin fecha de vencimiento' : p.dias < 0 ? 'venció hace ' + (-p.dias) + (p.dias === -1 ? ' día' : ' días') : p.dias === 0 ? 'vence hoy' : 'faltan ' + p.dias + (p.dias === 1 ? ' día' : ' días');
+function filaPers(p, conEmpresa) {
+  const right = h('div', {class: 'r'}, pill(p.est, p.cls), h('small', null, (p.vence ? 'Vence ' + fmt(pd(p.vence)) + ' · ' : '') + diasTxt(p)));
+  if (CAN && !conEmpresa) {
+    const ren = h('button', {class: 'btn ghost sm', type: 'button'}, 'Renovar'); ren.onclick = () => abrirPersonal(p.empresa, p);
+    const del = h('button', {class: 'btn ghost sm', type: 'button'}, 'Quitar'); del.onclick = () => quitarPers(del, p);
+    right.append(h('div', {style: 'display:flex;gap:6px'}, ren, del));
+  }
+  return h('div', {class: 'pi', style: '--sc:var(--' + p.cls + ')'}, h('span', {class: 'n'}, conEmpresa ? CORTO[p.empresa] : p.trabajador.split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase()),
+    h('div', {class: 't'}, p.trabajador + ' · ' + p.documento, h('small', null, [p.cargo, p.proyecto].filter(Boolean).join(' · ') || 'Sin cargo')), right);
+}
+function seccionPersonal(R) {
+  if (MODO === 'cliente') return null;
+  const ps = persDe(R.empresa);
+  const n = (e) => ps.filter((p) => p.est === e).length;
+  const add = CAN ? h('button', {class: 'btn', type: 'button'}, '+ Agregar documento') : null;
+  if (add) add.onclick = () => abrirPersonal(R.empresa, null);
+  const sec = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'personal'}, 'Vencimientos del personal'),
+    h('p', null, 'Documentos de cada trabajador que tienen fecha de vencimiento (examen médico, curso de alturas, reinducción…). Aviso desde ' + AVISO_P + ' días antes. Solo lo ves tú: no sale en la página del cliente.')), add));
+  if (!ps.length) { sec.append(h('div', {class: 'empty'}, CAN ? 'Aún no hay documentos del personal. Usa «+ Agregar documento» para el primero.' : 'Aún no hay documentos del personal registrados.')); return sec; }
+  sec.append(h('div', {class: 'tools'}, pill(n('Vencido') + ' vencidos', 'bad'), pill(n('Por vencer') + ' por vencer', 'warn'), pill(n('Al día') + ' al día', 'ok')));
+  const list = h('div', {class: 'pend'}); ps.forEach((p) => list.append(filaPers(p, false))); sec.append(list); return sec;
+}
+function panoramaPersonal() {
+  if (MODO === 'cliente') return null;
+  const ps = persDe(null).filter((p) => p.est === 'Vencido' || p.est === 'Por vencer');
+  const sec = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'personal'}, 'Personal: documentos vencidos o por vencer'),
+    h('p', null, 'Trabajadores de todas las empresas con un documento vencido o que vence en los próximos ' + AVISO_P + ' días. Para agregar o renovar, entra a la empresa.'))));
+  sec.append(ps.length ? (() => { const l = h('div', {class: 'pend'}); ps.slice(0, 30).forEach((p) => l.append(filaPers(p, true))); return l; })()
+    : h('div', {class: 'empty'}, h('b', null, '✓ '), PERS.length ? 'Ningún documento del personal vence en los próximos ' + AVISO_P + ' días.' : 'Aún no hay documentos del personal registrados.'));
+  return sec;
+}
+function quitarPers(btn, p) {
+  if (btn.dataset.armed) { btn.disabled = true; DB.collection('personal').doc(p.id).delete().then(() => toast('Documento quitado.')).catch(() => { btn.disabled = false; toast('No se pudo quitar.'); }); return; }
+  btn.dataset.armed = '1'; btn.textContent = '¿Seguro?'; btn.classList.add('danger');
+  setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = 'Quitar'; btn.classList.remove('danger'); } }, 4000);
+}
+function abrirPersonal(emp, p) {
+  MODAL = true;
+  const ov = h('div', {class: 'ov', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'per-titulo'});
+  const f = h('form', {class: 'modal'});
+  const conocidos = [...new Map(PERS.filter((x) => x.empresa === emp).map((x) => [x.trabajador, x])).values()];
+  const dl = h('datalist', {id: 'per-lista'}, ...conocidos.map((x) => h('option', {value: x.trabajador})));
+  const tra = h('input', {type: 'text', id: 'per-tra', list: 'per-lista', required: 'required', maxlength: '80', placeholder: 'Nombre del trabajador', value: p ? p.trabajador : ''});
+  const car = h('input', {type: 'text', id: 'per-car', maxlength: '80', placeholder: 'Ej.: Oficial de enchape', value: p ? (p.cargo || '') : ''});
+  const pro = h('input', {type: 'text', id: 'per-pro', maxlength: '80', placeholder: 'Ej.: Jardines de Fontanar - Amarilo', value: p ? (p.proyecto || '') : ''});
+  tra.oninput = () => { const k = conocidos.find((x) => x.trabajador === tra.value); if (k) { if (!car.value) car.value = k.cargo || ''; if (!pro.value) pro.value = k.proyecto || ''; } };
+  const tipo = h('select', {id: 'per-doc'}, ...TIPOS.map(([t]) => h('option', {value: t}, t)));
+  if (p) tipo.value = TIPOS.some(([t]) => t === p.documento) ? p.documento : 'Otro documento';
+  const otro = h('input', {type: 'text', id: 'per-otro', maxlength: '80', placeholder: 'Nombre del documento', value: p && !TIPOS.some(([t]) => t === p.documento) ? p.documento : ''});
+  const exp = h('input', {type: 'date', id: 'per-exp', max: hoyISO(), value: p ? '' : ''});
+  const ven = h('input', {type: 'date', id: 'per-ven', required: 'required', value: ''});
+  let venTocado = false; ven.oninput = () => { venTocado = true; };
+  const sugerir = () => { const m = (TIPOS.find(([t]) => t === tipo.value) || [0, 0])[1]; if (!venTocado && exp.value && m) ven.value = masMeses(exp.value, m); };
+  const verOtro = () => { otro.parentElement && (otroWrap.hidden = tipo.value !== 'Otro documento'); };
+  const otroWrap = h('div', {style: 'display:grid;gap:6px'}, h('label', {for: 'per-otro'}, 'Cuál documento'), otro);
+  tipo.onchange = () => { verOtro(); sugerir(); }; exp.oninput = sugerir;
+  const err = h('p', {class: 'err', hidden: 'hidden'});
+  const guardar = h('button', {class: 'btn', type: 'submit'}, 'Guardar');
+  const cancelar = h('button', {class: 'btn ghost', type: 'button'}, 'Cancelar');
+  const cerrar = () => { ov.remove(); MODAL = false; render(true); };
+  cancelar.onclick = cerrar; ov.addEventListener('click', (e) => { if (e.target === ov) cerrar(); });
+  ov.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrar(); });
+  f.append(h('div', {class: 'eyebrow'}, CORTO[emp] + ' · Personal'), h('h2', {id: 'per-titulo'}, p ? 'Renovar documento' : 'Agregar documento de un trabajador'),
+    h('p', {class: 'mut'}, 'Si escribes la fecha de expedición, el vencimiento se propone solo (examen médico, curso de alturas y reinducción: 1 año; PILA: 1 mes). Puedes cambiarlo.'),
+    h('label', {for: 'per-tra'}, 'Trabajador'), tra, dl, h('label', {for: 'per-car'}, 'Cargo (opcional)'), car, h('label', {for: 'per-pro'}, 'Proyecto u obra (opcional)'), pro,
+    h('label', {for: 'per-doc'}, 'Documento'), tipo, otroWrap,
+    h('label', {for: 'per-exp'}, 'Fecha de expedición (opcional)'), exp, h('label', {for: 'per-ven'}, 'Fecha de vencimiento'), ven, err, h('div', {class: 'acts'}, cancelar, guardar));
+  otroWrap.hidden = tipo.value !== 'Otro documento';
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault(); err.hidden = true;
+    const documento = tipo.value === 'Otro documento' ? otro.value.trim() : tipo.value;
+    if (!tra.value.trim() || !documento || !ven.value) { err.textContent = 'Escribe el trabajador, el documento y la fecha de vencimiento.'; err.hidden = false; return; }
+    guardar.disabled = true; guardar.textContent = 'Guardando…';
+    const doc = {empresa: emp, trabajador: tra.value.trim().slice(0, 80), cargo: car.value.trim().slice(0, 80), proyecto: pro.value.trim().slice(0, 80), documento: documento.slice(0, 80), expedicion: exp.value || '', vence: ven.value, creado: new Date().toISOString()};
+    const id = p ? p.id : (SLUG[emp] + '-' + (doc.trabajador + '-' + doc.documento).normalize('NFD').replace(/[^\w]+/g, '-').toLowerCase()).slice(0, 150);
+    try { await DB.collection('personal').doc(id).set(doc); ov.remove(); MODAL = false; toast('Documento guardado.'); render(true); }
+    catch (x) { guardar.disabled = false; guardar.textContent = 'Guardar'; err.textContent = 'No se pudo guardar (' + ((x && x.code) || 'error') + '). Inténtalo otra vez.'; err.hidden = false; }
+  });
+  ov.append(f); document.body.append(ov); (p ? exp : tra).focus();
+}
 function liveBadge() {
   const t = LIVE === 'vivo' ? (MODO === 'cliente' ? 'Actualizado ' + (SYNC ? fmt(pd(SYNC)) : '') : 'En vivo') : LIVE === 'cargando' ? 'Conectando…' : 'Solo consulta';
   return h('span', {class: 'live ' + LIVE}, h('i'), t);
@@ -689,6 +783,10 @@ render();
   CAN = MODO !== 'cliente' && !!db && ed;
   if (MODO === 'cliente') return;
   if (!db) { LIVE = 'consulta'; render(true); return; }
+  db.collection('personal').onSnapshot((snap) => {
+    PERS = snap.docs.map((d) => ({id: d.id, ...d.data()})).filter((x) => x && x.empresa && x.trabajador && x.documento && /^\d{4}-\d{2}-\d{2}$/.test(String(x.vence || '')));
+    render(true);
+  }, () => {});
   db.collection('evidencias').onSnapshot((snap) => {
     REG = snap.docs.map((d) => ({id: d.id, ...d.data()})).filter((x) => x && x.empresa && x.numero && /^\d{4}-\d{2}-\d{2}$/.test(String(x.fecha || '')));
     LIVE = 'vivo'; render(true);
