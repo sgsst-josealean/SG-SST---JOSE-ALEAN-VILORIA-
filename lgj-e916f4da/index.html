@@ -907,8 +907,8 @@ render();
 /* Puntaje actual del SG-SST en el encabezado de bienvenida (páginas de cliente) */
 function puntoBienv(R) {
   const EC = {'CRÍTICO': ['#FBE3E3', '#A12222'], 'MODERADAMENTE ACEPTABLE': ['#FFF0C9', '#8A5A00'], 'ACEPTABLE': ['#DDF3E8', '#1F6B4F']};
-  if (R.puntaje == null) return h('div', {class: 'bv-pt', 'aria-label': 'Avance del SG-SST'}, h('div', {class: 'k'}, 'Avance del SG-SST'),
-    h('div', {class: 'v'}, String(Math.round(R.docs * 100 / 60)), h('small', null, '%')), h('div', {class: 'e', style: 'background:#E6EEF0;color:#3F6D79'}, R.docs + ' de 60 documentos'));
+  if (R.puntaje == null) return h('div', {class: 'bv-pt', 'aria-label': 'Puntaje actual del SG-SST'}, h('div', {class: 'k'}, 'Puntaje actual del SG-SST'),
+    h('div', {class: 'v'}, '0', h('small', null, '%')), h('div', {class: 'e', style: 'background:#E6EEF0;color:#3F6D79'}, 'Sin evaluación inicial'));
   const c = EC[R.valoracion] || ['#E6EEF0', '#3F6D79'];
   return h('div', {class: 'bv-pt', 'aria-label': 'Puntaje actual del SG-SST'}, h('div', {class: 'k'}, 'Puntaje actual del SG-SST'),
     h('div', {class: 'v'}, String(Math.round(R.puntaje)), h('small', null, '%')),
