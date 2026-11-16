@@ -165,6 +165,24 @@ h3 { font-size: 15px; font-weight: 600; }
 .md-ley span { display: inline-flex; align-items: center; gap: 6px; }
 .md-ley i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
 .md-ley b { color: var(--ink); }
+.ciclos4 { margin: 0 0 18px; padding: 20px 26px; }
+.ciclos4 .c4-h h2 { margin: 2px 0 4px; font-size: clamp(19px, 2.4vw, 23px); color: #3F6D79; }
+.ciclos4 .c4-h p { margin: 0 0 14px; font-size: 14.5px; color: var(--ink); text-align: justify; }
+.c4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; counter-reset: paso; }
+.c4 .st { display: flex; flex-direction: column; position: relative; padding: 14px 14px 12px; border-radius: 14px; border: 1.5px solid #E6DCC4; background: #FBF8F0; }
+.c4 .st.on { border-color: var(--pc); background: linear-gradient(180deg, #FFFFFF, #F6FBF8); box-shadow: 0 4px 14px rgba(20, 58, 48, .08); }
+.c4 .st .nm { display: flex; align-items: center; gap: 8px; font-family: var(--display, inherit); font-weight: 700; font-size: 17px; color: #143A30; }
+.c4 .st .nm i { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 13px; font-weight: 700; color: #fff; background: #B9B2A2; }
+.c4 .st.on .nm i { background: var(--pc); }
+.c4 .st .pt { margin: 6px 0 4px; font-size: 13px; font-weight: 700; color: #8A6A1F; text-transform: uppercase; letter-spacing: .04em; }
+.c4 .st .qs { flex: 1; hyphens: auto; -webkit-hyphens: auto; margin: 0 0 10px; font-size: 13.5px; line-height: 1.4; color: var(--ink); text-align: justify; }
+.c4 .st .br { height: 8px; border-radius: 6px; background: #ECE5D3; overflow: hidden; }
+.c4 .st .br span { display: block; height: 100%; border-radius: 6px; background: var(--pc); }
+.c4 .st .es { margin-top: 6px; font-size: 13px; font-weight: 700; color: #7D7766; }
+.c4 .st.on .es { color: #143A30; }
+.c4-t { margin-top: 12px; font-size: 13.5px; color: var(--ink); text-align: justify; }
+@media (max-width: 900px) { .c4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .ciclos4 { padding: 16px; } .c4 { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 760px) { .medidor { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 16px; text-align: center; } .md-ley { justify-content: center; } }
 @media (max-width: 640px) {
   .eyebrow, .pill, .bv-pt .k, .bv-pt .e, .norma .nt, .norma .ob-tag, .norma .nm, .norma .nm > b, .norma .el, .norma .oblig, .ph .tag, .ph dl, .ph dd, .ph dt, .chip, .tab, .navlabel, .nav small, .fk, .foot small, .md-ley, .pi small, .tbl td, .tbl th, table td, table th, .meta, .actv, .nov, .sec-h p { font-size: max(12.5px, 1em) !important; }
@@ -612,7 +630,7 @@ function viewEmpresa(main, R) {
       R.saludo ? h('div', {class: 'bv-h'}, saludoHora() + ', ' + R.saludo + '.') : null,
       h('div', {class: 'bv-t'}, 'Haga seguimiento a su Sistema de Gestión de Seguridad y Salud en el Trabajo, siempre al día.'),
       h('div', {class: 'bv-s'}, 'Consulte su puntaje, el avance por ciclo PHVA y lo que debe entregar. ', SYNC ? h('span', null, 'Última actualización: ', h('b', null, fmt(pd(SYNC))), '.') : null)), puntoBienv(R)));
-  if (MODO === 'cliente') main.append(fraseSST(), seccionMedidor(R));
+  if (MODO === 'cliente') main.append(fraseSST(), seccionMedidor(R), seccionCiclos(R));
   if (MODO === 'cliente' && window.ubicarReloj) requestAnimationFrame(ubicarReloj);
   main.append(hero, novedad(R));
   const enl = enlaceCliente(R); if (enl) main.append(enl);
@@ -950,6 +968,32 @@ function puntoBienv(R) {
   return h('div', {class: 'bv-pt', 'aria-label': 'Estado de su SG-SST: ' + big + ', ' + sub}, h('div', {class: 'k'}, 'Estado de su SG-SST'),
     h('div', {class: 'v cic'}, big), h('div', {class: 'e', style: 'background:' + c[0] + ';color:' + c[1]}, sub));
 }
+/* Los 4 ciclos del PHVA con su peso en la Res. 0312 (en CEM solo se muestra el avance de Planear) */
+function n1i(v) { return Number.isInteger(+v) ? String(+v) : n1(v); }
+function seccionCiclos(R) {
+  const CPESO = {PLANEAR: 25, HACER: 60, VERIFICAR: 5, ACTUAR: 10};
+  const CQUE = {PLANEAR: 'Organizar el sistema: política, objetivos, evaluación inicial y plan de trabajo.',
+    HACER: 'Ponerlo en práctica: exámenes médicos, capacitaciones, peligros, emergencias y alto riesgo.',
+    VERIFICAR: 'Revisar si funciona: indicadores, auditoría y revisión por la dirección.',
+    ACTUAR: 'Corregir y mejorar: acciones preventivas, correctivas y de mejora.'};
+  const box = h('div', {class: 'c4'});
+  CICLOS.forEach((c, i) => {
+    const d = R.evaluada ? R.ciclos.find((x) => x.ciclo === c) : null;
+    const st = h('div', {class: 'st' + (d ? ' on' : ''), style: '--pc:' + CCOL[c]},
+      h('div', {class: 'nm'}, h('i', null, String(i + 1)), CNOM[c]),
+      h('div', {class: 'pt'}, 'Vale ' + CPESO[c] + ' puntos'),
+      h('p', {class: 'qs'}, CQUE[c]),
+      h('div', {class: 'br'}, h('span', {style: 'width:' + (d ? Math.round(d.avance * 100) : 0) + '%'})),
+      h('div', {class: 'es'}, d ? 'Lleva ' + n1i(d.obtenido) + ' de ' + CPESO[c] + ' puntos' : 'Por evaluar'));
+    box.append(st);
+  });
+  const falta = R.solo_ciclo && R.evaluada ? 100 - CPESO[R.solo_ciclo] : null;
+  return h('section', {class: 'card ciclos4 rise', 'aria-label': 'Los 4 ciclos del SG-SST'},
+    h('div', {class: 'c4-h'}, h('div', {class: 'eyebrow'}, 'Así se construye su SG-SST'), h('h2', null, 'Los 4 ciclos del PHVA'),
+      h('p', null, 'El SG-SST se arma en cuatro ciclos: Planear, Hacer, Verificar y Actuar. Entre los cuatro suman 100 puntos, y cada uno pesa distinto según la Resolución 0312 de 2019.')),
+    box,
+    falta ? h('div', {class: 'c4-t'}, 'Hasta ahora se ha evaluado el ciclo ' + CNOM[R.solo_ciclo] + '. Los otros tres ciclos suman ' + falta + ' puntos más, que se ganan a medida que se ejecuten y se evalúen.') : null);
+}
 function seccionMedidor(R) {
   const val = R.puntaje == null ? 0 : Math.round(R.puntaje);
   const tit = R.solo_ciclo ? 'Avance de su SG-SST' : 'Puntaje de su SG-SST';
@@ -989,7 +1033,7 @@ function velocimetro(val, num) {
   if (quieto || window.SG_INFORME) { ag.setAttribute('transform', `rotate(${ang(val)} ${cx} ${cy})`); num.textContent = String(val); svg.classList.add('encendido'); return svg; }
   const easeIO = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const easeOB = (t) => { const c1 = 1.1, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
-  const subir = 2600, pausa = 500, bajar = 3000;
+  const subir = 4500, pausa = 800, bajar = 5000;
   const pinta = (v) => { ag.setAttribute('transform', `rotate(${ang(Math.max(-2, Math.min(102, v)))} ${cx} ${cy})`); num.textContent = String(Math.round(Math.max(0, Math.min(100, v)))); };
   const arrancar = () => { const t0 = performance.now(); svg.classList.add('encendido'); const paso = (now) => { const e = now - t0; let v;
     if (e < subir) v = 100 * easeIO(e / subir); else if (e < subir + pausa) v = 100; else { const t = Math.min(1, (e - subir - pausa) / bajar); v = 100 + (val - 100) * easeOB(t); }
