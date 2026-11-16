@@ -287,6 +287,8 @@ button.pc { cursor: pointer; } button.pc:hover { border-color: var(--accent); }
 .clk .cw b { font-family: var(--f-display); font-size: 17px; font-weight: 600; color: var(--ink); }
 .clk .cw svg { width: 20px; height: 20px; color: var(--title); }
 @media (max-width: 640px) { .clk { left: 50%; right: auto; transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom, 0px)); padding: 7px 12px; gap: 9px; } .clk .ct { font-size: 18px; } .clk .cd span { display: none; } }
+@media (min-width: 641px) { .clk-cli { bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 60px); } }
+@media (max-width: 640px) { .clk-cli { left: max(12px, env(safe-area-inset-left, 0px)); transform: none; } }
 @media print { .clk { display: none; } }
 </style>
 
@@ -872,11 +874,11 @@ render = function (keep) { if (MODAL) return; recompute(); if (keep) { const y =
 
 addEventListener('hashchange', () => { render(); scrollTo({top: 0}); });
 render();
-/* Reloj flotante con fecha y temperatura (solo en el tablero del asesor) */
-if (MODO !== 'cliente') {
-  const CIUDAD = {nombre: 'Bogotá', lat: 4.711, lon: -74.0721};
+/* Reloj flotante con fecha y temperatura (tablero y páginas de cliente; en A&L, Fusagasugá) */
+{
+  const CIUDAD = MODO === 'cliente' && EMPRESAS[0] && EMPRESAS[0].empresa === 'A&L' ? {nombre: 'Fusagasugá', lat: 4.3365, lon: -74.3638} : {nombre: 'Bogotá', lat: 4.711, lon: -74.0721};
   const zona = {timeZone: 'America/Bogota'};
-  const c = h('div', {class: 'clk', role: 'timer', 'aria-live': 'off'});
+  const c = h('div', {class: 'clk' + (MODO === 'cliente' ? ' clk-cli' : ''), role: 'timer', 'aria-live': 'off'});
   const ct = h('div', {class: 'ct'}), cd = h('div', {class: 'cd'}), cw = h('div', {class: 'cw', hidden: true});
   c.append(ct, cd, cw); document.body.append(c);
   const tick = () => {
