@@ -129,6 +129,9 @@ h3 { font-size: 15px; font-weight: 600; }
 .norma { grid-column: 1 / -1; margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); border-left: 3px solid var(--title); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
 .norma .nt { font-family: var(--f-display); font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--title); }
 .norma .nm { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; font-size: 12px; flex: 1 1 320px; }
+.norma .oblig { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 12px; color: var(--ink); padding-top: 7px; border-top: 1px solid color-mix(in srgb, var(--title) 30%, transparent); text-align: justify; }
+.norma .ob-tag { font-family: var(--f-display); font-weight: 700; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--bg); background: var(--title); border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.norma .oblig > span:last-child { flex: 1 1 300px; }
 .norma .nm > b { color: var(--muted); font-weight: 600; font-size: 11.5px; margin-right: 1px; }
 .norma .chip { border: 1px solid color-mix(in srgb, var(--title) 55%, transparent); color: var(--ink); border-radius: 999px; padding: 1px 9px; font-weight: 500; white-space: nowrap; }
 .norma .el { font-size: 11.5px; color: var(--muted); margin-left: auto; white-space: nowrap; } .norma .el b { color: var(--ink); font-weight: 600; }
@@ -504,7 +507,9 @@ function marcoNormativo() {
   return h('div', {class: 'norma'},
     h('div', {class: 'nt', title: 'Seguimiento de los 60 estándares mínimos del SG-SST del Ministerio del Trabajo, con la calificación de la autoevaluación anual'}, 'Reporte de Estándares Mínimos SG-SST'),
     h('div', {class: 'nm'}, h('b', null, 'Marco normativo:'), h('span', {class: 'chip'}, 'Ley 1562 de 2012'), h('span', {class: 'chip'}, 'Decreto 1072 de 2015'), h('span', {class: 'chip'}, 'Resolución 0312 de 2019')),
-    h('div', {class: 'el'}, 'Elaboró: ', h('b', null, 'José Alean Viloria'), ' · Asesor Externo en SST'));
+    h('div', {class: 'el'}, 'Elaboró: ', h('b', null, 'José Alean Viloria'), ' · Asesor Externo en SST'),
+    h('div', {class: 'oblig'}, h('span', {class: 'ob-tag'}, 'Cumplimiento obligatorio'),
+      h('span', null, 'Aplica a todo empleador (Res. 0312 de 2019, art. 2). Incumplir el SG-SST acarrea sanciones del Ministerio del Trabajo: multas según el tamaño de la empresa y la gravedad de la falta, y suspensión o cierre de actividades (Ley 1562 de 2012, art. 13; Decreto 1072 de 2015, Capítulo 11).')));
 }
 
 /* Vista de empresa */
