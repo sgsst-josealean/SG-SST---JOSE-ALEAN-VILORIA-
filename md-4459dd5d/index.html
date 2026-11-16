@@ -885,7 +885,7 @@ function abrirPersonal(emp, p, pre) {
   const dl = h('datalist', {id: 'per-lista'}, ...conocidos.map((x) => h('option', {value: x.trabajador})));
   const tra = h('input', {type: 'text', id: 'per-tra', list: 'per-lista', required: 'required', maxlength: '80', placeholder: 'Nombre del trabajador', value: p ? p.trabajador : (pre.trabajador || '')});
   const car = h('input', {type: 'text', id: 'per-car', maxlength: '80', placeholder: 'Ej.: Oficial de enchape', value: p ? (p.cargo || '') : (pre.cargo || '')});
-  const pro = h('input', {type: 'text', id: 'per-pro', maxlength: '80', placeholder: 'Ej.: Jardines de Fontanar - Amarilo', value: p ? (p.proyecto || '') : (pre.proyecto || '')});
+  const pro = h('input', {type: 'text', id: 'per-pro', maxlength: '80', placeholder: 'Ej.: Nombre del proyecto', value: p ? (p.proyecto || '') : (pre.proyecto || '')});
   tra.oninput = () => { const k = conocidos.find((x) => x.trabajador === tra.value); if (k) { if (!car.value) car.value = k.cargo || ''; if (!pro.value) pro.value = k.proyecto || ''; } };
   const tipo = h('select', {id: 'per-doc'}, ...TIPOS.map(([t]) => h('option', {value: t}, t)));
   if (p) tipo.value = TIPOS.some(([t]) => t === p.documento) ? p.documento : 'Otro documento';
