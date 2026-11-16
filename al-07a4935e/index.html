@@ -50,7 +50,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--f-body); fon
 .nav .nm { font-size: 13.5px; font-weight: 500; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nav .nm small { display: block; font-size: 11.5px; color: var(--side-muted); font-weight: 400; }
 .nav .sc { font-family: var(--f-mono); font-size: 12px; padding: 2px 7px; border-radius: 6px; background: rgba(255,255,255,.08); color: var(--side-ink); }
-.side-foot { margin-top: auto; font-size: 11.5px; color: var(--side-muted); padding: 0 8px; line-height: 1.55; }
+.side-foot { margin-top: auto; font-size: 12.5px; color: var(--side-ink); opacity: .9; padding: 12px 8px 0; line-height: 1.6; border-top: 1px solid rgba(255,255,255,.14); }
 
 /* Área principal */
 .main { padding-block: 28px 48px; padding-left: 36px; padding-right: max(36px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 26px; min-width: 0; max-width: 1280px; }
@@ -192,7 +192,11 @@ td { padding: 10px 12px; border-top: 1px solid var(--line); vertical-align: top;
 td.c, th.c { text-align: center; } td.m { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
 tr.cyc td { background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; padding: 7px 12px; }
 
-.foot { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: space-between; }
+.foot { margin-bottom: 120px; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--title); border-radius: var(--r); box-shadow: var(--shadow); padding: 16px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; color: var(--ink); font-size: 14px; line-height: 1.45; }
+.foot > div { display: grid; gap: 2px; min-width: 0; }
+.foot .fk { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--title); }
+.foot .fv { font-weight: 500; overflow-wrap: break-word; }
+.foot .fv small { display: block; font-size: 12.5px; color: var(--muted); font-weight: 400; }
 .legend-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 20px; font-size: 13px; color: var(--muted); }
 .legend-box div { display: flex; gap: 10px; align-items: start; } .legend-box .pill { flex: none; }
 .tip { position: fixed; pointer-events: none; z-index: 30; background: var(--ink); color: var(--panel); font-size: 12px; padding: 6px 10px; border-radius: 8px; white-space: nowrap; opacity: 0; transition: opacity .12s; }
@@ -646,7 +650,10 @@ function render() {
   buildNav(cur);
   const main = document.getElementById('main'); main.replaceChildren();
   if (R) viewEmpresa(main, R); else viewPanorama(main);
-  main.append(h('footer', {class: 'foot'}, h('span', null, 'Elaboró: José Alean Viloria, Asesor Externo SST'), h('span', null, 'Marco normativo: Decreto 1072 de 2015 · Resolución 0312 de 2019'), h('span', null, 'Datos registrados al ' + fmt(pd(CORTE)) + ' · estados calculados con la fecha de hoy')));
+  main.append(h('footer', {class: 'foot'},
+    h('div', null, h('span', {class: 'fk'}, 'Elaboró'), h('span', {class: 'fv'}, 'José Alean Viloria', h('small', null, 'Asesor Externo en SST'))),
+    h('div', null, h('span', {class: 'fk'}, 'Marco normativo'), h('span', {class: 'fv'}, 'Ley 1562 de 2012 · Decreto 1072 de 2015 · Resolución 0312 de 2019')),
+    h('div', null, h('span', {class: 'fk'}, 'Datos'), h('span', {class: 'fv'}, 'Registrados al ' + fmt(pd(CORTE)), h('small', null, 'Los estados se calculan con la fecha de hoy')))));
   document.getElementById('corte').textContent = fmt(pd(CORTE));
   tip.style.opacity = 0;
 }
