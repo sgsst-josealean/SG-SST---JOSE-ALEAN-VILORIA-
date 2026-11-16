@@ -1006,7 +1006,7 @@ function seccionMedidor(R) {
   const ley = h('div', {class: 'md-ley'}, ...[['#E9AEB4', 'Crítico', 'menos de 60'], ['#F2D597', 'Moderadamente aceptable', '60 a 85'], ['#A9D7C0', 'Aceptable', 'más de 85']].map(([c, a, b]) => h('span', null, h('i', {style: 'background:' + c}), h('b', null, a), ' ' + b)));
   return h('section', {class: 'card medidor rise', 'aria-label': tit + ': ' + val + ' de 100'},
     h('div', {class: 'velo-w'}, velocimetro(val, num), h('div', {class: 'vn'}, num, h('small', null, '%'))),
-    h('div', {class: 'md-tx'}, h('div', {class: 'eyebrow'}, 'Su medidor'), h('h2', null, tit), pill(et, ecl), h('p', null, txt), ley));
+    h('div', {class: 'md-tx'}, h('div', {class: 'eyebrow'}, 'Su medidor'), h('h2', null, tit), R.puntaje == null ? null : pill(et, ecl), h('p', null, txt), ley));
 }
 function medidorCliente(R) { const val = R.puntaje == null ? 0 : Math.round(R.puntaje); const num = h('b', null, '0');
   return h('div', {class: 'velo-w', role: 'img', 'aria-label': 'Medidor: ' + val + ' de 100'}, velocimetro(val, num), h('div', {class: 'vn'}, num, h('small', null, '%'))); }
