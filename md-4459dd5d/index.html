@@ -20,7 +20,7 @@
   --ok: #4CC992; --warn: #E9B44C; --bad: #EE7466; --ev: #F09A55; --mute: #5E726B;
   --ok-bg: #133A2B; --warn-bg: #3A2F15; --bad-bg: #3D1E1A; --ev-bg: #3C2716; --mute-bg: #1C2C27;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.25); color-scheme: dark; } }
-:root[data-theme="dark"] {
+:root[data-theme="oscuro-desactivado-2"] {
   --bg: #0B1512; --panel: #111F1A; --panel-2: #162822; --line: #223A32;
   --ink: #E4EFEA; --muted: #8FA59D; --accent: #9ADBC4; --accent-soft: #1B3A31; --title: #E2C27D; --side: #08110E; --side-ink: #E4EFEA; --side-muted: #7F968E;
   --ok: #4CC992; --warn: #E9B44C; --bad: #EE7466; --ev: #F09A55; --mute: #5E726B;
@@ -289,6 +289,10 @@ button.pc { cursor: pointer; } button.pc:hover { border-color: var(--accent); }
 @media (max-width: 640px) { .clk { left: 50%; right: auto; transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom, 0px)); padding: 7px 12px; gap: 9px; } .clk .ct { font-size: 18px; } .clk .cd span { display: none; } }
 @media (min-width: 641px) { .clk-cli { bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 60px); } }
 @media (max-width: 640px) { .clk-cli { left: max(12px, env(safe-area-inset-left, 0px)); transform: none; } }
+.clk .cc { width: 34px; height: 34px; flex: none; pointer-events: auto; border: 0; padding: 0; background: none; cursor: pointer; color: var(--title); -webkit-tap-highlight-color: transparent; }
+.clk .cc svg { width: 100%; height: 100%; display: block; }
+.clk .cc .rosa { transform-origin: 20px 20px; transition: transform .25s ease-out; }
+@media (prefers-reduced-motion: reduce) { .clk .cc .rosa { transition: none; } }
 @media print { .clk { display: none; } }
 </style>
 
@@ -880,7 +884,16 @@ render();
   const zona = {timeZone: 'America/Bogota'};
   const c = h('div', {class: 'clk' + (MODO === 'cliente' ? ' clk-cli' : ''), role: 'timer', 'aria-live': 'off'});
   const ct = h('div', {class: 'ct'}), cd = h('div', {class: 'cd'}), cw = h('div', {class: 'cw', hidden: true});
-  c.append(ct, cd, cw); document.body.append(c);
+  const cc = h('button', {class: 'cc', type: 'button', title: 'Brújula: en el celular gira al moverlo', 'aria-label': 'Brújula'});
+  cc.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".55"/><circle cx="20" cy="20" r="14.5" fill="none" stroke="currentColor" stroke-width=".6" opacity=".35"/><g class="rosa"><path d="M20 6.5 L23.2 20 L20 18.6 L16.8 20 Z" fill="#C8453A"/><path d="M20 33.5 L16.8 20 L20 21.4 L23.2 20 Z" fill="currentColor" opacity=".8"/><circle cx="20" cy="20" r="1.8" fill="currentColor"/><text x="20" y="5.2" text-anchor="middle" font-size="4.6" font-weight="700" fill="currentColor" font-family="Sora, sans-serif">N</text></g></svg>';
+  c.append(cc, ct, cd, cw); document.body.append(c);
+  { const rosa = cc.querySelector('.rosa'); let act = false, ult = null;
+    const girar = (hd) => { if (hd == null || isNaN(hd)) return; if (ult != null) { let d = hd - (ult % 360 + 360) % 360; if (d > 180) d -= 360; if (d < -180) d += 360; ult += d; } else ult = hd; rosa.style.transform = 'rotate(' + (-ult) + 'deg)'; };
+    const onOri = (e) => { const hd = typeof e.webkitCompassHeading === 'number' ? e.webkitCompassHeading : (e.absolute && e.alpha != null ? 360 - e.alpha : null); girar(hd); };
+    const activar = () => { if (act) return; act = true; if ('ondeviceorientationabsolute' in window) window.addEventListener('deviceorientationabsolute', onOri); else window.addEventListener('deviceorientation', onOri); };
+    const DOE = window.DeviceOrientationEvent;
+    if (DOE) { activar(); if (typeof DOE.requestPermission === 'function') cc.onclick = () => { DOE.requestPermission().catch(() => {}); }; }
+  }
   const tick = () => {
     const n = new Date();
     const pr = Object.fromEntries(new Intl.DateTimeFormat('en-US', {...zona, hour: 'numeric', minute: '2-digit', hour12: false}).formatToParts(n).map((x) => [x.type, x.value]));
