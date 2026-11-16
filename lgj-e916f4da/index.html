@@ -5,15 +5,16 @@
 <style>
 /* Concepto: consola de control del asesor. Barra lateral tipo carpetas (una por empresa) + área de trabajo con tarjetas de lectura rápida. */
 :root {
-  --bg: #F3F6F5; --panel: #FFFFFF; --panel-2: #EAF1EE; --line: #D9E3DF;
-  --ink: #10201B; --muted: #5B6B66; --accent: #2E7D66; --accent-soft: #C8EEDF; --title: #8A6A1F; --side: #0F1F1A; --side-ink: #E6F2ED; --side-muted: #93A9A1;
+  --bg: #F7F5EF; --panel: #FFFFFF; --panel-2: #F1EEE5; --line: #E4DFD2;
+  --ink: #10201B; --muted: #5B6B66; --accent: #2E7D66; --accent-soft: #C8EEDF; --title: #8A6A1F; --side: #143A30; --side-ink: #E6F2ED; --side-muted: #93A9A1;
   --ok: #1E9E6A; --warn: #D99A1E; --bad: #D2493C; --ev: #E07B2E; --mute: #A4B2AD;
   --ok-bg: #DDF3E8; --warn-bg: #FBEFD5; --bad-bg: #F9DEDA; --ev-bg: #FBE5D3; --mute-bg: #E8EDEB;
   --shadow: 0 1px 2px rgba(16,32,27,.06), 0 8px 24px rgba(16,32,27,.06);
   --f-display: 'Sora', 'Segoe UI', system-ui, sans-serif; --f-body: 'Inter', 'Segoe UI', system-ui, sans-serif; --f-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
   --r: 14px;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+/* Tema claro marfil fijo (José, 2026-11-16): el modo oscuro del equipo ya no cambia los colores */
+@media (prefers-color-scheme: dark) { :root[data-theme="oscuro-desactivado"] {
   --bg: #0B1512; --panel: #111F1A; --panel-2: #162822; --line: #223A32;
   --ink: #E4EFEA; --muted: #8FA59D; --accent: #9ADBC4; --accent-soft: #1B3A31; --title: #E2C27D; --side: #08110E; --side-ink: #E4EFEA; --side-muted: #7F968E;
   --ok: #4CC992; --warn: #E9B44C; --bad: #EE7466; --ev: #F09A55; --mute: #5E726B;
