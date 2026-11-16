@@ -178,7 +178,8 @@ h3 { font-size: 15px; font-weight: 600; }
 .norma .oblig > span:last-child { flex: 1 1 min(300px, 100%); }
 .norma .nm > b { color: var(--muted); font-weight: 600; font-size: 11.5px; margin-right: 1px; }
 .norma .chip { border: 1px solid color-mix(in srgb, var(--title) 55%, transparent); color: var(--ink); border-radius: 999px; padding: 1px 9px; font-weight: 500; white-space: nowrap; }
-.norma .el { font-size: 11.5px; color: var(--muted); margin-left: auto; white-space: nowrap; } .norma .el b { color: var(--ink); font-weight: 600; }
+.norma .el { font-size: 11.5px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+@media (max-width: 420px) { .norma .el { white-space: normal; margin-left: 0; } } .norma .el b { color: var(--ink); font-weight: 600; }
 .nov { border-radius: var(--r); padding: 16px 20px; background: var(--warn-bg); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); line-height: 1.6; font-size: 15px; }
 .nov.ok { background: var(--ok-bg); border-color: color-mix(in srgb, var(--ok) 35%, transparent); }
 .nov.mute { background: var(--panel-2); border-color: var(--line); }
