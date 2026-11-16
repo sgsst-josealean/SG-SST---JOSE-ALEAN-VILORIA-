@@ -303,7 +303,7 @@ let DB = null, ASSETS = null, CAN = false, LIVE = MODO === 'cliente' ? 'vivo' : 
 function aplicarRegistros(r) {
   const regs = REG.filter((x) => x.empresa === r.empresa && x.numero === r.numero).sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
   if (!regs.length) return r;
-  const o = {...r, registros: regs};
+  const o = {...r, registros: regs, documento: 'Sí'};
   if (!o.ultima_evidencia || regs[0].fecha > o.ultima_evidencia) o.ultima_evidencia = regs[0].fecha;
   if (regs.some((x) => x.cumple)) o.calificacion = 'Cumple totalmente';
   return o;
@@ -501,9 +501,10 @@ function viewEmpresa(main, R) {
   const enl = enlaceCliente(R); if (enl) main.append(enl);
 
   if (!R.iniciada) {
-    main.append(h('section', {class: 'card'}, h('div', {class: 'empty'}, 'Esta empresa está en la lista de seguimiento. Cuando des la instrucción, se arma su carpeta PHVA y aquí aparecerán sus ciclos, su puntaje y sus pendientes.')));
-    return;
+    main.append(h('section', {class: 'card'}, h('div', {class: 'empty'}, MODO === 'cliente' ? 'Su SG-SST está en la lista de seguimiento. A medida que su asesor reciba las evidencias, aquí aparecerán sus ciclos, su puntaje y sus pendientes.' : 'Esta empresa aún no tiene evidencias. Cuando registres la primera en la tabla de abajo, aquí aparecerán sus ciclos, su puntaje y sus pendientes.')));
+    if (MODO === 'cliente') return;
   }
+  if (R.iniciada) {
 
   const score = h('section', {class: 'card score'}, h('h2', {id: 'puntaje'}, 'Puntaje Res. 0312'), gauge(R.puntaje, true), pill(R.valoracion, VCLS[R.valoracion]),
     h('p', null, R.evaluada ? 'Calificación de la evaluación inicial 2.3.1: ' + n1(R.puntaje) + ' de 100 puntos.' : 'Aún no tiene evaluación inicial 2.3.1. Lleva ' + R.docs + ' de 60 documentos elaborados.'));
@@ -545,6 +546,7 @@ function viewEmpresa(main, R) {
   } else drawPend();
   const pend = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'pendientes'}, MODO === 'cliente' ? 'Lo que deben enviar' : 'Qué pedirle a la empresa'), h('p', null, MODO === 'cliente' ? 'Pendientes ciclo por ciclo, con el soporte que deben enviar a su asesor y la fecha límite.' : 'Pendientes ciclo por ciclo, con lo que debe enviar y la fecha límite.'))), tabs, list);
   main.append(h('div', {class: 'row3'}, entregas, pend));
+  }
 
   // Tabla de los 60 estándares
   let fEst = 'Todos', q = '';
@@ -560,7 +562,7 @@ function viewEmpresa(main, R) {
       tb.append(h('tr', {class: 'cyc'}, h('td', {colspan: CAN ? 9 : 8}, CNOM[c])));
       for (const r of rs) tb.append(h('tr', null, h('td', {class: 'm'}, r.numero), h('td', null, r.estandar), h('td', {class: 'c m'}, n1(+r.valor)),
         h('td', {class: 'c'}, r.calificacion === 'Cumple totalmente' ? pill('Cumple', 'ok') : r.calificacion === 'No cumple' ? pill('No cumple', 'bad') : r.calificacion === 'No aplica' ? pill('No aplica', 'mute') : '—'),
-        h('td', null, r.frecuencia || '—'), h('td', {class: 'm'}, fmt(pd(r.ultima_evidencia))), h('td', {class: 'm'}, fmt(r.vence)), h('td', {class: 'c'}, pill(r.estado, ECLS[r.estado])), CAN ? h('td', {class: 'c'}, r.documento === 'Sí' ? btnReg(r, true) : '—') : null));
+        h('td', null, r.frecuencia || '—'), h('td', {class: 'm'}, fmt(pd(r.ultima_evidencia))), h('td', {class: 'm'}, fmt(r.vence)), h('td', {class: 'c'}, pill(r.estado, ECLS[r.estado])), CAN ? h('td', {class: 'c'}, btnReg(r, true)) : null));
     }
     if (!tb.children.length) tb.append(h('tr', null, h('td', {colspan: CAN ? 9 : 8, class: 'c'}, 'Ningún estándar coincide con la búsqueda.')));
   };
