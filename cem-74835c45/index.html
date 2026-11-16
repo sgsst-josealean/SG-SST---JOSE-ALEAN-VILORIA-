@@ -962,7 +962,7 @@ render();
 function puntoBienv(R) {
   const EC = {'CRÍTICO': ['#FBE3E3', '#A12222'], 'MODERADAMENTE ACEPTABLE': ['#FFF0C9', '#8A5A00'], 'ACEPTABLE': ['#DDF3E8', '#1F6B4F']};
   let big, sub, c = ['#E6EEF0', '#3F6D79'];
-  if (R.puntaje == null) { big = 'Evaluación pendiente'; sub = 'Expuesto a sanción'; c = ['#FBE3E3', '#A12222']; }
+  if (R.puntaje == null) { big = 'Expuesto a sanción'; sub = 'Ley 1562 de 2012, art. 13'; c = ['#FBE3E3', '#A12222']; }
   else if (R.solo_ciclo) { big = 'Ciclo ' + CNOM[R.solo_ciclo]; sub = 'Evaluado'; }
   else { big = 'Ciclo PHVA completo'; sub = R.valoracion === 'MODERADAMENTE ACEPTABLE' ? 'Moderadamente aceptable' : R.valoracion.charAt(0) + R.valoracion.slice(1).toLowerCase(); c = EC[R.valoracion] || c; }
   return h('div', {class: 'bv-pt', 'aria-label': 'Estado de su SG-SST: ' + big + ', ' + sub}, h('div', {class: 'k'}, 'Estado de su SG-SST'),
