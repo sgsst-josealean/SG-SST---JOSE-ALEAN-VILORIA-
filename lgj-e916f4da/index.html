@@ -631,6 +631,7 @@ function viewEmpresa(main, R) {
       h('div', {class: 'bv-t'}, 'Haga seguimiento a su Sistema de Gestión de Seguridad y Salud en el Trabajo, siempre al día.'),
       h('div', {class: 'bv-s'}, 'Consulte su puntaje, el avance por ciclo PHVA y lo que debe entregar. ', SYNC ? h('span', null, 'Última actualización: ', h('b', null, fmt(pd(SYNC))), '.') : null)), puntoBienv(R)));
   if (MODO === 'cliente') main.append(fraseSST(), seccionMedidor(R), seccionCiclos(R));
+  else main.append(seccionMedidor(R), seccionCiclos(R));
   if (MODO === 'cliente' && window.ubicarReloj) requestAnimationFrame(ubicarReloj);
   main.append(hero, novedad(R));
   const enl = enlaceCliente(R); if (enl) main.append(enl);
@@ -961,8 +962,7 @@ render();
 function puntoBienv(R) {
   const EC = {'CRÍTICO': ['#FBE3E3', '#A12222'], 'MODERADAMENTE ACEPTABLE': ['#FFF0C9', '#8A5A00'], 'ACEPTABLE': ['#DDF3E8', '#1F6B4F']};
   let big, sub, c = ['#E6EEF0', '#3F6D79'];
-  if (!R.iniciada) { big = 'Por iniciar'; sub = 'Pendiente la evaluación inicial'; }
-  else if (R.puntaje == null) { big = 'En construcción'; sub = 'Pendiente la evaluación inicial'; }
+  if (R.puntaje == null) { big = 'Evaluación pendiente'; sub = 'Expuesto a sanción'; c = ['#FBE3E3', '#A12222']; }
   else if (R.solo_ciclo) { big = 'Ciclo ' + CNOM[R.solo_ciclo]; sub = 'Evaluado'; }
   else { big = 'Ciclo PHVA completo'; sub = R.valoracion === 'MODERADAMENTE ACEPTABLE' ? 'Moderadamente aceptable' : R.valoracion.charAt(0) + R.valoracion.slice(1).toLowerCase(); c = EC[R.valoracion] || c; }
   return h('div', {class: 'bv-pt', 'aria-label': 'Estado de su SG-SST: ' + big + ', ' + sub}, h('div', {class: 'k'}, 'Estado de su SG-SST'),
@@ -997,11 +997,11 @@ function seccionCiclos(R) {
 function seccionMedidor(R) {
   const val = R.puntaje == null ? 0 : Math.round(R.puntaje);
   const tit = R.solo_ciclo ? 'Avance de su SG-SST' : 'Puntaje de su SG-SST';
-  const txt = R.puntaje == null ? 'Su empresa aún no tiene evaluación inicial de estándares mínimos. La aguja empieza a subir cuando su asesor la registre.'
+  const txt = R.puntaje == null ? 'Sin evaluación de estándares mínimos (Res. 0312 de 2019, art. 27), la empresa puede ser multada por el Ministerio del Trabajo (Ley 1562 de 2012, art. 13).'
     : R.solo_ciclo ? 'La aguja marca los puntos que lleva su SG-SST sobre 100. Hasta ahora se ha evaluado el ciclo ' + CNOM[R.solo_ciclo] + '; los demás ciclos suman a medida que se evalúen.'
     : 'La aguja marca la calificación de su evaluación de estándares mínimos (Res. 0312 de 2019), sobre 100 puntos.';
-  const et = R.puntaje == null ? 'Sin evaluación inicial' : R.solo_ciclo ? 'Ciclo ' + CNOM[R.solo_ciclo] + ' evaluado' : R.valoracion === 'MODERADAMENTE ACEPTABLE' ? 'Moderadamente aceptable' : R.valoracion.charAt(0) + R.valoracion.slice(1).toLowerCase();
-  const ecl = R.puntaje == null || R.solo_ciclo ? 'mute' : VCLS[R.valoracion];
+  const et = R.puntaje == null ? 'Expuesto a sanción' : R.solo_ciclo ? 'Ciclo ' + CNOM[R.solo_ciclo] + ' evaluado' : R.valoracion === 'MODERADAMENTE ACEPTABLE' ? 'Moderadamente aceptable' : R.valoracion.charAt(0) + R.valoracion.slice(1).toLowerCase();
+  const ecl = R.puntaje == null ? 'bad' : R.solo_ciclo ? 'mute' : VCLS[R.valoracion];
   const num = h('b', null, '0');
   const ley = h('div', {class: 'md-ley'}, ...[['#E9AEB4', 'Crítico', 'menos de 60'], ['#F2D597', 'Moderadamente aceptable', '60 a 85'], ['#A9D7C0', 'Aceptable', 'más de 85']].map(([c, a, b]) => h('span', null, h('i', {style: 'background:' + c}), h('b', null, a), ' ' + b)));
   return h('section', {class: 'card medidor rise', 'aria-label': tit + ': ' + val + ' de 100'},
