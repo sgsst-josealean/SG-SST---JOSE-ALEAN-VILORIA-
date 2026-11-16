@@ -130,6 +130,15 @@ h3 { font-size: 15px; font-weight: 600; }
 .norma .nt { font-family: var(--f-display); font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--title); }
 .norma .nm { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; font-size: 12px; flex: 1 1 320px; }
 .hero .actv { margin-top: 4px; font-size: 13px; color: var(--muted); } .hero .actv b { color: var(--ink); font-weight: 500; }
+.bienv { display: flex; gap: 16px; align-items: center; padding: 18px 22px; margin-bottom: 18px; border-radius: var(--r); background: linear-gradient(120deg, var(--side) 0%, color-mix(in srgb, var(--side) 78%, var(--accent)) 100%); color: var(--side-ink); box-shadow: var(--shadow); position: relative; overflow: hidden; }
+.bienv::after { content: ''; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--title) 45%, transparent); opacity: .6; }
+.bv-ic { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--title); display: grid; place-items: center; }
+.bv-ic span { width: 12px; height: 12px; border-radius: 50%; background: #E2C27D; box-shadow: 0 0 0 6px color-mix(in srgb, #E2C27D 25%, transparent); animation: bvp 2.4s ease-in-out infinite; }
+@keyframes bvp { 50% { box-shadow: 0 0 0 10px color-mix(in srgb, #E2C27D 8%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .bv-ic span { animation: none; } }
+.bv-k { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #E2C27D; font-weight: 700; }
+.bv-t { font-family: var(--f-display); font-size: clamp(16px, 2.2vw, 20px); font-weight: 600; line-height: 1.3; margin-top: 3px; text-wrap: balance; }
+.bv-s { font-size: 13px; color: var(--side-muted); margin-top: 4px; }
 .norma .oblig { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 12px; color: var(--ink); padding-top: 7px; border-top: 1px solid color-mix(in srgb, var(--title) 30%, transparent); text-align: justify; }
 .norma .ob-tag { font-family: var(--f-display); font-weight: 700; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--bg); background: var(--title); border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
 .norma .oblig > span:last-child { flex: 1 1 300px; }
@@ -268,6 +277,16 @@ button.pc { cursor: pointer; } button.pc:hover { border-color: var(--accent); }
 .wa-fab svg { width: 24px; height: 24px; flex: none; }
 @media (max-width: 640px) { .wa-fab { width: 52px; height: 52px; padding: 0; justify-content: center; } .wa-fab span { display: none; } }
 @media print { .wa-fab { display: none; } }
+.clk { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); z-index: 55; display: flex; align-items: center; gap: 12px; padding: 9px 16px 9px 14px; border-radius: 16px; background: color-mix(in srgb, var(--panel) 82%, transparent); backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%); border: 1px solid color-mix(in srgb, var(--title) 35%, var(--line)); box-shadow: var(--shadow); color: var(--ink); font-family: var(--f-body); pointer-events: none; }
+.clk .ct { font-family: var(--f-display); font-weight: 600; font-size: 22px; letter-spacing: .01em; color: var(--title); font-variant-numeric: tabular-nums; line-height: 1; }
+.clk .ct small { font-size: 11px; font-weight: 600; margin-left: 3px; letter-spacing: .06em; color: var(--muted); }
+.clk .cd { display: grid; gap: 1px; font-size: 11.5px; line-height: 1.3; color: var(--muted); }
+.clk .cd b { color: var(--ink); font-weight: 600; text-transform: capitalize; }
+.clk .cw { display: flex; align-items: center; gap: 6px; padding-left: 12px; border-left: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.clk .cw b { font-family: var(--f-display); font-size: 17px; font-weight: 600; color: var(--ink); }
+.clk .cw svg { width: 20px; height: 20px; color: var(--title); }
+@media (max-width: 640px) { .clk { left: 50%; right: auto; transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom, 0px)); padding: 7px 12px; gap: 9px; } .clk .ct { font-size: 18px; } .clk .cd span { display: none; } }
+@media print { .clk { display: none; } }
 </style>
 
 <div class="app">
@@ -525,6 +544,11 @@ function viewEmpresa(main, R) {
     h('div', {style: 'min-width:0'}, h('div', {class: 'eyebrow'}, 'Empresa'), h('h1', {id: 'empresa'}, R.nombre),
       h('div', {class: 'meta'}, h('span', null, 'Representante legal: ', h('b', null, R.representante)), R.telefono ? h('span', null, (/^3/.test(R.telefono) ? 'Celular: ' : 'Teléfono: '), h('b', null, R.telefono)) : null, h('span', null, R.datos)), R.actividad ? h('div', {class: 'actv'}, h('span', null, 'Actividad económica: '), h('b', null, R.actividad)) : null),
     pill(R.valoracion, VCLS[R.valoracion]), marcoNormativo());
+  if (MODO === 'cliente') main.append(h('section', {class: 'bienv rise', 'aria-label': 'Bienvenida'},
+    h('div', {class: 'bv-ic', 'aria-hidden': 'true'}, h('span')),
+    h('div', {class: 'bv-tx'}, h('div', {class: 'bv-k'}, 'Bienvenido a su SG-SST en línea'),
+      h('div', {class: 'bv-t'}, 'Haga seguimiento a su Sistema de Gestión de Seguridad y Salud en el Trabajo, siempre al día.'),
+      h('div', {class: 'bv-s'}, 'Consulte su puntaje, el avance por ciclo PHVA y lo que debe entregar. ' + (SYNC ? 'Última actualización: ' + fmt(pd(SYNC)) + '.' : '')))));
   main.append(hero, novedad(R));
   const enl = enlaceCliente(R); if (enl) main.append(enl);
 
@@ -847,6 +871,36 @@ render = function (keep) { if (MODAL) return; recompute(); if (keep) { const y =
 
 addEventListener('hashchange', () => { render(); scrollTo({top: 0}); });
 render();
+/* Reloj flotante con fecha y temperatura (solo en el tablero del asesor) */
+if (MODO !== 'cliente') {
+  const CIUDAD = {nombre: 'Bogotá', lat: 4.711, lon: -74.0721};
+  const zona = {timeZone: 'America/Bogota'};
+  const c = h('div', {class: 'clk', role: 'timer', 'aria-live': 'off'});
+  const ct = h('div', {class: 'ct'}), cd = h('div', {class: 'cd'}), cw = h('div', {class: 'cw', hidden: true});
+  c.append(ct, cd, cw); document.body.append(c);
+  const tick = () => {
+    const n = new Date();
+    const pr = Object.fromEntries(new Intl.DateTimeFormat('en-US', {...zona, hour: 'numeric', minute: '2-digit', hour12: false}).formatToParts(n).map((x) => [x.type, x.value]));
+    const H = Number(pr.hour) % 24, hora = ((H % 12) || 12) + ':' + pr.minute, ampm = H < 12 ? 'a. m.' : 'p. m.';
+    ct.replaceChildren(hora, h('small', null, ampm));
+    cd.replaceChildren(h('b', null, n.toLocaleDateString('es-CO', {...zona, weekday: 'long'})), h('span', null, n.toLocaleDateString('es-CO', {...zona, day: 'numeric', month: 'long', year: 'numeric'})));
+  };
+  tick(); setInterval(tick, 15000);
+  const ICO = (code) => { const sol = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+    const nube = '<path d="M7 18h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6.2 9.1 4.5 4.5 0 0 0 7 18z"/>';
+    const lluvia = nube + '<path d="M9 21l1-2M13 21l1-2"/>';
+    const p = code <= 1 ? sol : code <= 3 ? '<circle cx="8" cy="8" r="3"/><path d="M8 2v1.5M2 8h1.5M3.8 3.8l1 1"/>' + nube : code >= 51 ? lluvia : nube;
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'; };
+  const clima = async () => {
+    try {
+      const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + CIUDAD.lat + '&longitude=' + CIUDAD.lon + '&current=temperature_2m,weather_code&timezone=America%2FBogota');
+      if (!r.ok) throw 0; const j = await r.json(); const cur = j && j.current; if (!cur || typeof cur.temperature_2m !== 'number') throw 0;
+      const ic = h('span'); ic.innerHTML = ICO(Number(cur.weather_code) || 0);
+      cw.replaceChildren(ic.firstChild, h('b', null, Math.round(cur.temperature_2m) + '°'), h('span', null, CIUDAD.nombre)); cw.hidden = false;
+    } catch (e) { cw.hidden = true; }
+  };
+  clima(); setInterval(clima, 30 * 60 * 1000);
+}
 /* Botón flotante de WhatsApp (solo en la página del cliente): dudas sobre su SG-SST, directo al Asesor Externo */
 if (MODO === 'cliente') {
   const nom = (EMPRESAS[0] && EMPRESAS[0].nombre) || 'mi empresa';
