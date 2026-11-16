@@ -166,6 +166,17 @@ h3 { font-size: 15px; font-weight: 600; }
 .md-ley i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
 .md-ley b { color: var(--ink); }
 @media (max-width: 760px) { .medidor { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 16px; text-align: center; } .md-ley { justify-content: center; } }
+@media (max-width: 640px) {
+  .eyebrow, .pill, .bv-pt .k, .bv-pt .e, .norma .nt, .norma .ob-tag, .norma .nm, .norma .nm > b, .norma .el, .norma .oblig, .ph .tag, .ph dl, .ph dd, .ph dt, .chip, .tab, .navlabel, .nav small, .fk, .foot small, .md-ley, .pi small, .tbl td, .tbl th, table td, table th, .meta, .actv, .nov, .sec-h p { font-size: max(12.5px, 1em) !important; }
+  table td, table th { font-size: 12.5px !important; }
+  .ph dd { white-space: nowrap; } .ph dd { font-family: var(--f-body) !important; font-weight: 600; }
+  .norma > * { min-width: 0; max-width: 100%; } .norma .oblig { box-sizing: border-box; } .norma .ob-tag { white-space: normal !important; letter-spacing: .05em !important; } .norma .oblig > span:last-child { flex: 1 1 100% !important; min-width: 0; }
+}
+@media (max-width: 480px) {
+  .phva { grid-template-columns: minmax(0, 1fr) !important; }
+  .ph { display: grid !important; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'tag tag' 'ring dl'; align-items: center; column-gap: 16px; }
+  .ph > .tag { grid-area: tag; } .ph > svg, .ph > .ring { grid-area: ring; } .ph > dl { grid-area: dl; }
+}
 .frase { position: relative; display: flex; gap: 14px; align-items: center; margin: -8px 0 18px; padding: 16px 24px 16px 18px; border-radius: var(--r); background: #FBF3F5; border: 1px solid #E9CDD5; border-left: 5px solid #7A2440; box-shadow: var(--shadow); overflow: hidden; }
 .frase .fr-q { font-family: Georgia, 'Times New Roman', serif; font-size: 52px; line-height: .6; color: #8E2E4A; opacity: .9; margin-top: 10px; flex: none; }
 .frase .fr-t { margin: 0; font-family: var(--f-display); font-style: normal; font-weight: 600; font-size: clamp(16.5px, 2vw, 19.5px); line-height: 1.45; color: #7A2440; transition: opacity .6s ease, transform .6s ease; }
@@ -619,7 +630,7 @@ function viewEmpresa(main, R) {
     ph.append(h('div', {class: 'ph', style: '--pc:' + CCOL[c.ciclo]}, h('span', {class: 'tag'}, CNOM[c.ciclo]), ring(frac, CCOL[c.ciclo], Math.round(frac * 100) + '%'), dl));
   }
   const phCard = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'avance-ciclo'}, R.solo_ciclo ? 'Avance del ciclo ' + CNOM[R.solo_ciclo] : 'Avance por ciclo del PHVA'), h('p', null, R.evaluada ? 'Puntaje obtenido frente al posible en cada ciclo, según la evaluación 2.3.1.' : 'Documentos elaborados en cada ciclo, de los 60 estándares.'))), ph);
-  main.append(h('div', {class: 'row2'}, score, phCard));
+  main.append(MODO === 'cliente' ? phCard : h('div', {class: 'row2'}, score, phCard));
 
   const total = R.solo_ciclo ? R.rs.length : 60;
   const dl2 = h('div', {class: 'donut-l'}, ...ESTADOS.filter((e) => R.cnt[e]).map((e) => h('div', null, h('i', {style: 'background:var(--' + ECLS[e] + ')'}), h('span', null, e), h('b', null, String(R.cnt[e])))));
@@ -692,8 +703,8 @@ function render() {
   main.append(h('footer', {class: 'foot'},
     h('div', null, h('span', {class: 'fk'}, 'Elaboró'), h('span', {class: 'fv'}, 'José Alean Viloria', h('small', null, 'Asesor Externo en SST'))),
     h('div', null, h('span', {class: 'fk'}, 'Marco normativo'), h('span', {class: 'fv'}, 'Ley 1562 de 2012 · Decreto 1072 de 2015 · Resolución 0312 de 2019')),
-    h('div', null, h('span', {class: 'fk'}, 'Datos'), h('span', {class: 'fv'}, 'Registrados al ' + fmt(pd(CORTE)), h('small', null, 'Los estados se calculan con la fecha de hoy')))));
-  document.getElementById('corte').textContent = fmt(pd(CORTE));
+    MODO === 'cliente' && SYNC ? h('div', null, h('span', {class: 'fk'}, 'Última actualización'), h('span', {class: 'fv'}, fmt(pd(SYNC)), h('small', null, 'Los estados se calculan con la fecha de hoy'))) : h('div', null, h('span', {class: 'fk'}, 'Datos'), h('span', {class: 'fv'}, 'Registrados al ' + fmt(pd(CORTE)), h('small', null, 'Los estados se calculan con la fecha de hoy')))));
+  document.getElementById('corte').textContent = fmt(pd(MODO === 'cliente' && SYNC ? SYNC : CORTE));
   tip.style.opacity = 0;
 }
 /* Registro de evidencias (en vivo) */
