@@ -137,15 +137,16 @@ h3 { font-size: 15px; font-weight: 600; }
 .bv-ic span { width: 12px; height: 12px; border-radius: 50%; background: #E2C27D; box-shadow: 0 0 0 6px color-mix(in srgb, #E2C27D 25%, transparent); animation: bvp 2.4s ease-in-out infinite; }
 @keyframes bvp { 50% { box-shadow: 0 0 0 10px color-mix(in srgb, #E2C27D 8%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .bv-ic span { animation: none; } }
-.bv-k { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #E2C27D; font-weight: 700; }
-.bv-t { font-family: var(--f-display); font-size: clamp(16px, 2.2vw, 20px); font-weight: 600; line-height: 1.3; margin-top: 3px; text-wrap: balance; }
-.bv-s { font-size: 13px; color: var(--side-muted); margin-top: 4px; }
-.bv-h { font-family: var(--f-display); font-size: clamp(20px, 2.8vw, 26px); font-weight: 600; color: #E2C27D; margin-top: 4px; line-height: 1.2; }
-.frase { position: relative; display: flex; gap: 14px; align-items: center; margin: -8px 0 18px; padding: 14px 22px 14px 18px; border-radius: var(--r); background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; }
-.frase .fr-q { font-family: Georgia, 'Times New Roman', serif; font-size: 46px; line-height: .6; color: #8E2E4A; opacity: .9; margin-top: 10px; flex: none; }
-.frase .fr-t { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-size: clamp(15px, 1.8vw, 17.5px); line-height: 1.45; color: #7A2440; transition: opacity .6s ease, transform .6s ease; }
+.bv-k { font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: #E2C27D; font-weight: 700; }
+.bv-t { font-family: var(--f-display); font-size: clamp(17px, 2.4vw, 22px); font-weight: 600; color: #FFFFFF; line-height: 1.3; margin-top: 3px; text-wrap: balance; }
+.bv-s { font-size: clamp(14px, 1.7vw, 15.5px); font-weight: 500; color: #D9ECE4; margin-top: 8px; line-height: 1.5; }
+.bv-s b { color: #E2C27D; font-weight: 700; }
+.bv-h { font-family: var(--f-display); font-size: clamp(24px, 3.4vw, 32px); font-weight: 600; color: #E2C27D; margin-top: 4px; line-height: 1.2; }
+.frase { position: relative; display: flex; gap: 14px; align-items: center; margin: -8px 0 18px; padding: 16px 24px 16px 18px; border-radius: var(--r); background: #FBF3F5; border: 1px solid #E9CDD5; border-left: 5px solid #7A2440; box-shadow: var(--shadow); overflow: hidden; }
+.frase .fr-q { font-family: Georgia, 'Times New Roman', serif; font-size: 52px; line-height: .6; color: #8E2E4A; opacity: .9; margin-top: 10px; flex: none; }
+.frase .fr-t { margin: 0; font-family: var(--f-display); font-style: normal; font-weight: 600; font-size: clamp(16.5px, 2vw, 19.5px); line-height: 1.45; color: #7A2440; transition: opacity .6s ease, transform .6s ease; }
 .frase .fr-t.fuera { opacity: 0; transform: translateY(4px); }
-.frase .fr-b { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: linear-gradient(90deg, #8E2E4A, var(--title)); transform-origin: left; animation: frb 180s linear infinite; opacity: .7; }
+.frase .fr-b { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: linear-gradient(90deg, #8E2E4A, var(--title)); transform-origin: left; animation: frb 20s linear infinite; opacity: .7; }
 @keyframes frb { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @media (prefers-reduced-motion: reduce) { .frase .fr-b { animation: none; } .frase .fr-t { transition: none; } }
 .norma .oblig { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 12px; color: var(--ink); padding-top: 7px; border-top: 1px solid color-mix(in srgb, var(--title) 30%, transparent); text-align: justify; }
@@ -568,7 +569,7 @@ function viewEmpresa(main, R) {
     h('div', {class: 'bv-tx'}, h('div', {class: 'bv-k'}, 'Bienvenido a su SG-SST en línea'),
       R.saludo ? h('div', {class: 'bv-h'}, saludoHora() + ', ' + R.saludo + '.') : null,
       h('div', {class: 'bv-t'}, 'Haga seguimiento a su Sistema de Gestión de Seguridad y Salud en el Trabajo, siempre al día.'),
-      h('div', {class: 'bv-s'}, 'Consulte su puntaje, el avance por ciclo PHVA y lo que debe entregar. ' + (SYNC ? 'Última actualización: ' + fmt(pd(SYNC)) + '.' : '')))));
+      h('div', {class: 'bv-s'}, 'Consulte su puntaje, el avance por ciclo PHVA y lo que debe entregar. ', SYNC ? h('span', null, 'Última actualización: ', h('b', null, fmt(pd(SYNC))), '.') : null))));
   if (MODO === 'cliente') main.append(fraseSST());
   main.append(hero, novedad(R));
   const enl = enlaceCliente(R); if (enl) main.append(enl);
@@ -895,7 +896,7 @@ render = function (keep) { if (MODAL) return; recompute(); if (keep) { const y =
 
 addEventListener('hashchange', () => { render(); scrollTo({top: 0}); });
 render();
-/* Saludo según la hora de Bogotá y frase de SG-SST que cambia cada 3 minutos (páginas de cliente) */
+/* Saludo según la hora de Bogotá y frase de SG-SST que cambia cada 20 segundos (páginas de cliente) */
 function saludoHora() { const H = Number(new Intl.DateTimeFormat('en-US', {timeZone: 'America/Bogota', hour: 'numeric', hour12: false}).format(new Date())) % 24; return H < 12 ? 'Buenos días' : H < 19 ? 'Buenas tardes' : 'Buenas noches'; }
 function frasesSST() { return [
   'La seguridad no es un gasto: es una inversión en su gente y en su empresa.',
@@ -921,9 +922,9 @@ function fraseSST() {
   const FRASES = frasesSST();
   const tx = h('p', {class: 'fr-t'});
   const box = h('section', {class: 'frase rise', 'aria-label': 'Frase de seguridad y salud en el trabajo'}, h('span', {class: 'fr-q', 'aria-hidden': 'true'}, '“'), tx, h('span', {class: 'fr-b', 'aria-hidden': 'true'}));
-  let i = Math.floor(Date.now() / 180000) % FRASES.length;
+  let i = Math.floor(Date.now() / 20000) % FRASES.length;
   tx.textContent = FRASES[i];
-  setInterval(() => { tx.classList.add('fuera'); setTimeout(() => { i = (i + 1) % FRASES.length; tx.textContent = FRASES[i]; tx.classList.remove('fuera'); }, 600); }, 180000);
+  setInterval(() => { tx.classList.add('fuera'); setTimeout(() => { i = (i + 1) % FRASES.length; tx.textContent = FRASES[i]; tx.classList.remove('fuera'); }, 600); }, 20000);
   return box;
 }
 /* Reloj flotante con fecha y temperatura (tablero y páginas de cliente; en A&L, Fusagasugá) */
