@@ -190,6 +190,9 @@ tr.cyc td { background: var(--accent-soft); color: var(--accent); font-weight: 7
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .btn.sm { font-size: 12px; padding: 5px 10px; border-radius: 8px; }
 .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.linkc { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.linkc input { flex: 1 1 260px; min-width: 0; font: inherit; font-size: 13px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); }
+.linkc a.btn { text-decoration: none; display: inline-block; }
 .btn.danger { color: var(--bad); border-color: var(--bad); }
 .lnk { color: var(--accent); font-size: 12.5px; font-weight: 600; }
 .ov { position: fixed; inset: 0; z-index: 50; background: rgba(5,12,10,.55); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
@@ -456,6 +459,23 @@ function leyenda() {
     h('div', {class: 'legend-box'}, ...items.map(([t, c, d]) => h('div', null, pill(t, c), h('span', null, d)))));
 }
 
+/* Enlace web del cliente (solo en el tablero del asesor) */
+const WEB = 'https://sgsst-josealean.github.io/SG-SST---JOSE-ALEAN-VILORIA-/';
+const RUTAS = {};
+function enlaceCliente(R) {
+  const ruta = RUTAS[SLUG[R.empresa]]; if (MODO === 'cliente' || !ruta) return null;
+  const url = WEB + ruta + '/';
+  const inp = h('input', {type: 'text', readonly: 'readonly', value: url, 'aria-label': 'Enlace web de ' + R.nombre});
+  inp.onfocus = () => inp.select();
+  const copiar = h('button', {class: 'btn', type: 'button'}, 'Copiar enlace');
+  copiar.onclick = async () => { let ok = false; try { await navigator.clipboard.writeText(url); ok = true; } catch (e) { try { inp.select(); ok = document.execCommand('copy'); } catch (e2) {} } copiar.textContent = ok ? '¡Copiado!' : 'Selecciona y copia'; if (!ok) inp.select(); setTimeout(() => { copiar.textContent = 'Copiar enlace'; }, 2500); };
+  const msg = 'Le comparto el enlace donde puede consultar en cualquier momento el avance del SG-SST de ' + R.nombre + ': ' + url;
+  return h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'enlace'}, 'Enlace web del cliente'), h('p', null, 'Esta es la página que ve la empresa: solo consulta y se actualiza sola. Envíale únicamente este enlace.'))),
+    h('div', {class: 'linkc'}, inp, copiar,
+      h('a', {class: 'btn ghost', href: 'https://wa.me/?text=' + encodeURIComponent(msg), target: '_blank', rel: 'noopener'}, 'Enviar por WhatsApp'),
+      h('a', {class: 'btn ghost', href: url, target: '_blank', rel: 'noopener'}, 'Abrir')));
+}
+
 /* Vista de empresa */
 function viewEmpresa(main, R) {
   const hero = h('header', {class: 'card hero rise'}, logoBox(R.empresa),
@@ -463,6 +483,7 @@ function viewEmpresa(main, R) {
       h('div', {class: 'meta'}, h('span', null, 'Representante legal: ', h('b', null, R.representante)), h('span', null, R.datos))),
     pill(R.valoracion, VCLS[R.valoracion]));
   main.append(hero, novedad(R));
+  const enl = enlaceCliente(R); if (enl) main.append(enl);
 
   if (!R.iniciada) {
     main.append(h('section', {class: 'card'}, h('div', {class: 'empty'}, 'Esta empresa está en la lista de seguimiento. Cuando des la instrucción, se arma su carpeta PHVA y aquí aparecerán sus ciclos, su puntaje y sus pendientes.')));
