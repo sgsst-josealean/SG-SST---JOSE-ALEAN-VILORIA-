@@ -6,7 +6,7 @@
 /* Concepto: consola de control del asesor. Barra lateral tipo carpetas (una por empresa) + área de trabajo con tarjetas de lectura rápida. */
 :root {
   --bg: #F3F6F5; --panel: #FFFFFF; --panel-2: #EAF1EE; --line: #D9E3DF;
-  --ink: #10201B; --muted: #5B6B66; --accent: #2E7D66; --accent-soft: #C8EEDF; --side: #0F1F1A; --side-ink: #E6F2ED; --side-muted: #93A9A1;
+  --ink: #10201B; --muted: #5B6B66; --accent: #2E7D66; --accent-soft: #C8EEDF; --title: #8A6A1F; --side: #0F1F1A; --side-ink: #E6F2ED; --side-muted: #93A9A1;
   --ok: #1E9E6A; --warn: #D99A1E; --bad: #D2493C; --ev: #E07B2E; --mute: #A4B2AD;
   --ok-bg: #DDF3E8; --warn-bg: #FBEFD5; --bad-bg: #F9DEDA; --ev-bg: #FBE5D3; --mute-bg: #E8EDEB;
   --shadow: 0 1px 2px rgba(16,32,27,.06), 0 8px 24px rgba(16,32,27,.06);
@@ -15,13 +15,13 @@
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0B1512; --panel: #111F1A; --panel-2: #162822; --line: #223A32;
-  --ink: #E4EFEA; --muted: #8FA59D; --accent: #9ADBC4; --accent-soft: #1B3A31; --side: #08110E; --side-ink: #E4EFEA; --side-muted: #7F968E;
+  --ink: #E4EFEA; --muted: #8FA59D; --accent: #9ADBC4; --accent-soft: #1B3A31; --title: #E2C27D; --side: #08110E; --side-ink: #E4EFEA; --side-muted: #7F968E;
   --ok: #4CC992; --warn: #E9B44C; --bad: #EE7466; --ev: #F09A55; --mute: #5E726B;
   --ok-bg: #133A2B; --warn-bg: #3A2F15; --bad-bg: #3D1E1A; --ev-bg: #3C2716; --mute-bg: #1C2C27;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.25); color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #0B1512; --panel: #111F1A; --panel-2: #162822; --line: #223A32;
-  --ink: #E4EFEA; --muted: #8FA59D; --accent: #9ADBC4; --accent-soft: #1B3A31; --side: #08110E; --side-ink: #E4EFEA; --side-muted: #7F968E;
+  --ink: #E4EFEA; --muted: #8FA59D; --accent: #9ADBC4; --accent-soft: #1B3A31; --title: #E2C27D; --side: #08110E; --side-ink: #E4EFEA; --side-muted: #7F968E;
   --ok: #4CC992; --warn: #E9B44C; --bad: #EE7466; --ev: #F09A55; --mute: #5E726B;
   --ok-bg: #133A2B; --warn-bg: #3A2F15; --bad-bg: #3D1E1A; --ev-bg: #3C2716; --mute-bg: #1C2C27;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.25); color-scheme: dark; }
@@ -54,7 +54,7 @@ body { background: var(--bg); color: var(--ink); font-family: var(--f-body); fon
 /* Área principal */
 .main { padding-block: 28px 48px; padding-left: 36px; padding-right: max(36px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 26px; min-width: 0; max-width: 1280px; }
 .eyebrow { font-size: 11.5px; text-transform: uppercase; letter-spacing: .14em; color: var(--accent); font-weight: 600; }
-h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; color: var(--title); }
 h1 { font-size: clamp(24px, 3.2vw, 34px); font-weight: 600; letter-spacing: -.015em; line-height: 1.15; }
 h2 { font-size: 19px; font-weight: 600; letter-spacing: -.005em; }
 h3 { font-size: 15px; font-weight: 600; }
@@ -126,13 +126,12 @@ h3 { font-size: 15px; font-weight: 600; }
 .hero .logo { width: 96px; height: 96px; border-radius: 18px; } .hero .logo img { width: 86px; height: 86px; }
 .hero .meta { color: var(--muted); font-size: 14px; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px 16px; }
 .hero .meta b { color: var(--ink); font-weight: 500; }
-.norma { grid-column: 1 / -1; margin-top: 14px; padding: 12px 16px; border-radius: 12px; background: var(--accent-soft); border-left: 4px solid var(--accent); display: grid; gap: 6px; }
-.norma .nt { font-family: var(--f-display); font-weight: 700; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); }
-.norma .ns { font-size: 13.5px; color: var(--ink); text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
-.norma .nm { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12.5px; }
-.norma .nm > b { color: var(--accent); font-weight: 600; margin-right: 2px; }
-.norma .chip { border: 1px solid var(--accent); color: var(--ink); background: var(--panel); border-radius: 10px; padding: 2px 10px; font-weight: 500; }
-.norma .el { font-size: 12.5px; color: var(--muted); } .norma .el b { color: var(--ink); font-weight: 600; }
+.norma { grid-column: 1 / -1; margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); border-left: 3px solid var(--title); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.norma .nt { font-family: var(--f-display); font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--title); }
+.norma .nm { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; font-size: 12px; flex: 1 1 320px; }
+.norma .nm > b { color: var(--muted); font-weight: 600; font-size: 11.5px; margin-right: 1px; }
+.norma .chip { border: 1px solid color-mix(in srgb, var(--title) 55%, transparent); color: var(--ink); border-radius: 999px; padding: 1px 9px; font-weight: 500; white-space: nowrap; }
+.norma .el { font-size: 11.5px; color: var(--muted); margin-left: auto; white-space: nowrap; } .norma .el b { color: var(--ink); font-weight: 600; }
 .nov { border-radius: var(--r); padding: 16px 20px; background: var(--warn-bg); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); line-height: 1.6; font-size: 15px; }
 .nov.ok { background: var(--ok-bg); border-color: color-mix(in srgb, var(--ok) 35%, transparent); }
 .nov.mute { background: var(--panel-2); border-color: var(--line); }
@@ -212,7 +211,7 @@ button.pc { cursor: pointer; } button.pc:hover { border-color: var(--accent); }
 .pc-name { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); margin-right: 4px; }
 .pc-list { display: flex; flex-direction: column; gap: 6px; align-items: start; }
 .pc-add { font: inherit; font-size: 12px; color: var(--accent); background: transparent; border: 1px dashed var(--line); border-radius: 10px; padding: 6px 10px; cursor: pointer; } .pc-add:hover { border-color: var(--accent); }
-.frente-h { font-size: 15px; margin: 20px 0 8px; padding: 8px 12px; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+.frente-h { color: var(--title); font-size: 15px; margin: 20px 0 8px; padding: 8px 12px; border-left: 4px solid var(--title); background: var(--accent-soft); border-radius: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
 .frente-h span { font-size: 12px; font-weight: 500; opacity: .8; }
 .pc-none { color: var(--muted); }
 .regf { margin-top: 12px; padding: 12px 14px; border: 1px dashed var(--accent); border-radius: 12px; display: grid; gap: 8px; font-size: 13.5px; }
@@ -503,10 +502,9 @@ function enlaceCliente(R) {
 
 function marcoNormativo() {
   return h('div', {class: 'norma'},
-    h('div', {class: 'nt'}, 'Reporte de Estándares Mínimos del SG-SST'),
-    h('div', {class: 'ns'}, 'Seguimiento de los 60 estándares mínimos del Sistema de Gestión de la Seguridad y Salud en el Trabajo definidos por el Ministerio del Trabajo, con la misma calificación que exige la autoevaluación anual (crítico, moderadamente aceptable o aceptable).'),
-    h('div', {class: 'nm'}, h('b', null, 'Marco normativo:'), h('span', {class: 'chip'}, 'Ley 1562 de 2012'), h('span', {class: 'chip'}, 'Decreto 1072 de 2015, Libro 2, Parte 2, Título 4, Capítulo 6'), h('span', {class: 'chip'}, 'Resolución 0312 de 2019, estándares mínimos')),
-    h('div', {class: 'el'}, 'Elaboró: ', h('b', null, 'José Alean Viloria'), ', Asesor Externo en SST.'));
+    h('div', {class: 'nt', title: 'Seguimiento de los 60 estándares mínimos del SG-SST del Ministerio del Trabajo, con la calificación de la autoevaluación anual'}, 'Reporte de Estándares Mínimos SG-SST'),
+    h('div', {class: 'nm'}, h('b', null, 'Marco normativo:'), h('span', {class: 'chip'}, 'Ley 1562 de 2012'), h('span', {class: 'chip'}, 'Decreto 1072 de 2015'), h('span', {class: 'chip'}, 'Resolución 0312 de 2019')),
+    h('div', {class: 'el'}, 'Elaboró: ', h('b', null, 'José Alean Viloria'), ' · Asesor Externo en SST'));
 }
 
 /* Vista de empresa */
