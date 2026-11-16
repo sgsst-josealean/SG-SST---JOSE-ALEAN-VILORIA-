@@ -171,6 +171,7 @@ h3 { font-size: 15px; font-weight: 600; }
 .score { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; }
 .score p { margin: 0; color: var(--muted); font-size: 13px; max-width: 32ch; }
 .phva { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+.phva.uno { grid-template-columns: minmax(0, 260px); }
 .ph { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--panel); }
 .ph .tag { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--pc); }
 .ph .ring { width: 80px; height: 80px; position: relative; }
@@ -391,14 +392,14 @@ function resumen(e) {
   const ok = (r) => r.calificacion === 'Cumple totalmente' || r.calificacion === 'No aplica';
   const puntaje = evaluada ? Math.round(rs.filter(ok).reduce((a, r) => a + +r.valor, 0) * 100) / 100 : null;
   const cnt = {}; ESTADOS.concat('Sin iniciar').forEach((s) => cnt[s] = rs.filter((r) => r.estado === s).length);
-  const ciclos = CICLOS.map((c) => {
+  const ciclos = CICLOS.filter((c) => !e.solo_ciclo || c === e.solo_ciclo).map((c) => {
     const cr = rs.filter((r) => r.ciclo === c);
     const posible = cr.reduce((a, r) => a + +r.valor, 0), obtenido = cr.filter(ok).reduce((a, r) => a + +r.valor, 0);
     return {ciclo: c, posible, obtenido, avance: posible ? obtenido / posible : 0, cumplen: cr.filter(ok).length, por_cerrar: cr.filter((r) => r.calificacion === 'No cumple').length,
       docs: cr.filter((r) => r.documento === 'Sí').length, total: cr.length,
       pend: cr.filter((r) => ['Por vencer', 'Atrasado', 'Sin evidencia'].includes(r.estado))};
   });
-  const valoracion = !iniciada ? 'Sin iniciar' : puntaje == null ? 'Sin evaluación' : puntaje < 60 ? 'CRÍTICO' : puntaje <= 85 ? 'MODERADAMENTE ACEPTABLE' : 'ACEPTABLE';
+  const valoracion = e.solo_ciclo && evaluada ? 'Ciclo ' + CNOM[e.solo_ciclo] : !iniciada ? 'Sin iniciar' : puntaje == null ? 'Sin evaluación' : puntaje < 60 ? 'CRÍTICO' : puntaje <= 85 ? 'MODERADAMENTE ACEPTABLE' : 'ACEPTABLE';
   return {...e, rs, iniciada, evaluada, puntaje, valoracion, cnt, ciclos, docs: rs.filter((r) => r.documento === 'Sí').length};
 }
 recompute();
@@ -463,7 +464,7 @@ function novedad(R) {
   if (c['Sin evidencia']) partes.push(c['Sin evidencia'] + (c['Sin evidencia'] === 1 ? ' estándar sin evidencia' : ' estándares sin evidencia'));
   if (c['Por vencer']) partes.push(c['Por vencer'] + (c['Por vencer'] === 1 ? ' entrega que vence' : ' entregas que vencen') + ' en los próximos ' + AVISO + ' días');
   if (c['Falta documento']) partes.push(c['Falta documento'] + (c['Falta documento'] === 1 ? ' documento por elaborar' : ' documentos por elaborar'));
-  const pts = R.puntaje != null ? ' Puntaje Res. 0312: ' + Math.round(R.puntaje) + ' de 100 (' + R.valoracion + ').' : ' Aún no tiene evaluación inicial 2.3.1.';
+  const pts = R.solo_ciclo && R.puntaje != null ? ' Avance del SG-SST: ' + Math.round(R.puntaje) + ' de 100 puntos, con el ciclo ' + CNOM[R.solo_ciclo] + ' evaluado.' : R.puntaje != null ? ' Puntaje Res. 0312: ' + Math.round(R.puntaje) + ' de 100 (' + R.valoracion + ').' : ' Aún no tiene evaluación inicial 2.3.1.';
   if (!partes.length) return h('div', {class: 'nov ok'}, fecha, ' el SG-SST de ' + R.nombre + ' está al día en todos sus ciclos.' + pts);
   return h('div', {class: 'nov' + (c['Atrasado'] ? '' : '')}, fecha, ' el SG-SST de ' + R.nombre + ' presenta las siguientes novedades: ' + partes.join('; ') + '.' + pts);
 }
@@ -588,9 +589,9 @@ function viewEmpresa(main, R) {
   }
   if (R.iniciada) {
 
-  const score = h('section', {class: 'card score'}, h('h2', {id: 'puntaje'}, 'Puntaje Res. 0312'), gauge(R.puntaje, true), pill(R.valoracion, VCLS[R.valoracion]),
-    h('p', null, R.evaluada ? 'Calificación de la evaluación inicial 2.3.1: ' + n1(R.puntaje) + ' de 100 puntos.' : 'Aún no tiene evaluación inicial 2.3.1. Lleva ' + R.docs + ' de 60 documentos elaborados.'));
-  const ph = h('div', {class: 'phva'});
+  const score = h('section', {class: 'card score'}, h('h2', {id: 'puntaje'}, R.solo_ciclo ? 'Avance del SG-SST' : 'Puntaje Res. 0312'), gauge(R.puntaje, true), pill(R.valoracion, VCLS[R.valoracion]),
+    h('p', null, R.solo_ciclo && R.evaluada ? 'Lleva ' + n1(R.puntaje) + ' de 100 puntos del SG-SST. Hasta ahora se ha evaluado el ciclo ' + CNOM[R.solo_ciclo] + '.' : R.evaluada ? 'Calificación de la evaluación inicial 2.3.1: ' + n1(R.puntaje) + ' de 100 puntos.' : 'Aún no tiene evaluación inicial 2.3.1. Lleva ' + R.docs + ' de 60 documentos elaborados.'));
+  const ph = h('div', {class: 'phva' + (R.ciclos.length === 1 ? ' uno' : '')});
   for (const c of R.ciclos) {
     const frac = R.evaluada ? c.avance : c.total ? c.docs / c.total : 0;
     const dl = h('dl');
@@ -598,12 +599,12 @@ function viewEmpresa(main, R) {
     else dl.append(h('dt', null, 'Documentos'), h('dd', null, c.docs + ' de ' + c.total), h('dt', null, 'Pendientes'), h('dd', null, String(c.pend.length)));
     ph.append(h('div', {class: 'ph', style: '--pc:' + CCOL[c.ciclo]}, h('span', {class: 'tag'}, CNOM[c.ciclo]), ring(frac, CCOL[c.ciclo], Math.round(frac * 100) + '%'), dl));
   }
-  const phCard = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'avance-ciclo'}, 'Avance por ciclo del PHVA'), h('p', null, R.evaluada ? 'Puntaje obtenido frente al posible en cada ciclo, según la evaluación 2.3.1.' : 'Documentos elaborados en cada ciclo, de los 60 estándares.'))), ph);
+  const phCard = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'avance-ciclo'}, R.solo_ciclo ? 'Avance del ciclo ' + CNOM[R.solo_ciclo] : 'Avance por ciclo del PHVA'), h('p', null, R.evaluada ? 'Puntaje obtenido frente al posible en cada ciclo, según la evaluación 2.3.1.' : 'Documentos elaborados en cada ciclo, de los 60 estándares.'))), ph);
   main.append(h('div', {class: 'row2'}, score, phCard));
 
-  const total = 60;
+  const total = R.solo_ciclo ? R.rs.length : 60;
   const dl2 = h('div', {class: 'donut-l'}, ...ESTADOS.filter((e) => R.cnt[e]).map((e) => h('div', null, h('i', {style: 'background:var(--' + ECLS[e] + ')'}), h('span', null, e), h('b', null, String(R.cnt[e])))));
-  const entregas = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'entregas'}, 'Estado de las entregas'), h('p', null, 'Los 60 estándares según lo que la empresa ha enviado.'))), h('div', {class: 'donut-w'}, donut(R.cnt, total), dl2));
+  const entregas = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'entregas'}, 'Estado de las entregas'), h('p', null, R.solo_ciclo ? 'Los estándares del ciclo ' + CNOM[R.solo_ciclo] + ' según lo que la empresa ha enviado.' : 'Los 60 estándares según lo que la empresa ha enviado.'))), h('div', {class: 'donut-w'}, donut(R.cnt, total), dl2));
 
   let cur = R.ciclos.find((c) => c.pend.length)?.ciclo || 'PLANEAR';
   const tabs = h('div', {class: 'tabs', role: 'tablist'}); const list = h('div', {class: 'pend'});
@@ -644,7 +645,7 @@ function viewEmpresa(main, R) {
   const search = h('input', {class: 'search', id: 'buscar-' + SLUG[R.empresa], type: 'search', placeholder: 'Buscar estándar o número…', 'aria-label': 'Buscar estándar'});
   search.oninput = () => { q = search.value.toLowerCase(); drawTabla(); };
   const drawTabla = () => {
-    chips.replaceChildren(...['Todos'].concat(ESTADOS.filter((e) => R.cnt[e])).map((e) => { const b = h('button', {class: 'chip' + (e === fEst ? ' on' : ''), id: 'f-' + SLUG[R.empresa] + '-' + e.replace(/\W/g, '')}, e === 'Todos' ? 'Todos (60)' : e + ' (' + R.cnt[e] + ')'); b.onclick = () => { fEst = e; drawTabla(); }; return b; }), search);
+    chips.replaceChildren(...['Todos'].concat(ESTADOS.filter((e) => R.cnt[e])).map((e) => { const b = h('button', {class: 'chip' + (e === fEst ? ' on' : ''), id: 'f-' + SLUG[R.empresa] + '-' + e.replace(/\W/g, '')}, e === 'Todos' ? 'Todos (' + R.rs.length + ')' : e + ' (' + R.cnt[e] + ')'); b.onclick = () => { fEst = e; drawTabla(); }; return b; }), search);
     tb.replaceChildren();
     for (const c of CICLOS) {
       const rs = R.rs.filter((r) => r.ciclo === c && (fEst === 'Todos' || r.estado === fEst) && (!q || (r.numero + ' ' + r.estandar).toLowerCase().includes(q)));
@@ -657,7 +658,7 @@ function viewEmpresa(main, R) {
     if (!tb.children.length) tb.append(h('tr', null, h('td', {colspan: CAN ? 9 : 8, class: 'c'}, 'Ningún estándar coincide con la búsqueda.')));
   };
   drawTabla();
-  const tabla = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'estandares'}, 'Los 60 estándares'), h('p', null, 'Estado de cada estándar de la Res. 0312 de 2019, con su calificación en la evaluación 2.3.1 y sus fechas.'))), chips,
+  const tabla = h('section', {class: 'card'}, h('div', {class: 'sec-h'}, h('div', null, h('h2', {id: 'estandares'}, R.solo_ciclo ? 'Estándares del ciclo ' + CNOM[R.solo_ciclo] : 'Los 60 estándares'), h('p', null, 'Estado de cada estándar de la Res. 0312 de 2019, con su calificación en la evaluación 2.3.1 y sus fechas.'))), chips,
     h('div', {class: 'tw'}, h('table', null, h('thead', null, h('tr', null, h('th', null, 'N.º'), h('th', {style: 'min-width:280px'}, 'Estándar'), h('th', {class: 'c'}, 'Valor'), h('th', {class: 'c'}, 'Calificación 2.3.1'), h('th', null, 'Frecuencia'), h('th', null, 'Última evidencia'), h('th', null, 'Próximo vencimiento'), h('th', {class: 'c'}, 'Estado'), CAN ? h('th', {class: 'c'}, 'Registrar') : null)), tb)));
   main.append(tabla, historial(R));
 }
@@ -909,6 +910,8 @@ function puntoBienv(R) {
   const EC = {'CRÍTICO': ['#FBE3E3', '#A12222'], 'MODERADAMENTE ACEPTABLE': ['#FFF0C9', '#8A5A00'], 'ACEPTABLE': ['#DDF3E8', '#1F6B4F']};
   if (R.puntaje == null) return h('div', {class: 'bv-pt', 'aria-label': 'Puntaje actual del SG-SST'}, h('div', {class: 'k'}, 'Puntaje actual del SG-SST'),
     h('div', {class: 'v'}, '0', h('small', null, '%')), h('div', {class: 'e', style: 'background:#E6EEF0;color:#3F6D79'}, 'Sin evaluación inicial'));
+  if (R.solo_ciclo) return h('div', {class: 'bv-pt', 'aria-label': 'Avance del SG-SST'}, h('div', {class: 'k'}, 'Avance del SG-SST'),
+    h('div', {class: 'v'}, String(Math.round(R.puntaje)), h('small', null, '%')), h('div', {class: 'e', style: 'background:#E6EEF0;color:#3F6D79'}, 'Ciclo ' + CNOM[R.solo_ciclo] + ' evaluado'));
   const c = EC[R.valoracion] || ['#E6EEF0', '#3F6D79'];
   return h('div', {class: 'bv-pt', 'aria-label': 'Puntaje actual del SG-SST'}, h('div', {class: 'k'}, 'Puntaje actual del SG-SST'),
     h('div', {class: 'v'}, String(Math.round(R.puntaje)), h('small', null, '%')),
