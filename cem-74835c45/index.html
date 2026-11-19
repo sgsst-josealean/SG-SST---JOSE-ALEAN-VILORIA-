@@ -423,7 +423,7 @@ function estadoDe(r) {
   }
   return {...r, estado, vence, faltan: vence == null ? null : Math.round((vence - HOY) / 864e5)};
 }
-let REG = [{"id": "cem-114-2026-11", "empresa": "CEM", "numero": "1.1.4", "fecha": "2026-11-11", "cumple": false, "creado": "2026-11-15T23:06:00Z"}];      // registros de evidencia (en el tablero se cargan en vivo; en la página del cliente vienen incluidos)
+let REG = [{"id": "cem-114-2026-11", "empresa": "CEM", "numero": "1.1.4", "fecha": "2026-11-11", "cumple": false, "creado": "2026-11-15T23:06:00Z"}, {"id": "cem-314-2026-11", "empresa": "CEM", "numero": "3.1.4", "fecha": "2026-11-18", "cumple": true, "creado": "2026-11-19T14:50:00Z"}, {"id": "cem-421-2026-11-18", "empresa": "CEM", "numero": "4.2.1", "fecha": "2026-11-18", "cumple": true, "creado": "2026-11-19T14:55:00Z"}, {"id": "cem-422-2026-11-18", "empresa": "CEM", "numero": "4.2.2", "fecha": "2026-11-18", "cumple": true, "creado": "2026-11-19T14:55:00Z"}, {"id": "cem-423-2026-11-18", "empresa": "CEM", "numero": "4.2.3", "fecha": "2026-11-18", "cumple": true, "creado": "2026-11-19T14:55:00Z"}, {"id": "cem-424-2026-11-18", "empresa": "CEM", "numero": "4.2.4", "fecha": "2026-11-18", "cumple": true, "creado": "2026-11-19T14:55:00Z"}];      // registros de evidencia (en el tablero se cargan en vivo; en la página del cliente vienen incluidos)
 const SYNC = "2026-11-19";
 let ROWS = [], RES = [];
 let DB = null, ASSETS = null, CAN = false, LIVE = MODO === 'cliente' ? 'vivo' : 'cargando';
