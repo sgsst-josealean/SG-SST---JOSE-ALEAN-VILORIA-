@@ -424,7 +424,7 @@ function estadoDe(r) {
   return {...r, estado, vence, faltan: vence == null ? null : Math.round((vence - HOY) / 864e5)};
 }
 let REG = [];      // registros de evidencia (en el tablero se cargan en vivo; en la página del cliente vienen incluidos)
-const SYNC = "2026-11-18";
+const SYNC = "2026-11-19";
 let ROWS = [], RES = [];
 let DB = null, ASSETS = null, CAN = false, LIVE = MODO === 'cliente' ? 'vivo' : 'cargando';
 function aplicarRegistros(r) {
