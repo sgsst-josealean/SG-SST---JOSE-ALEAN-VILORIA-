@@ -160,7 +160,7 @@ h3 { font-size: 15px; font-weight: 600; }
 .medidor .velo-w .velo { max-width: 340px; }
 .medidor .velo-w .vn { font-size: clamp(42px, 6vw, 56px); }
 .medidor .md-tx h2 { font-size: clamp(20px, 2.6vw, 26px); margin: 2px 0 8px; color: #3F6D79; }
-.medidor .md-tx p { margin: 10px 0 12px; font-size: 15px; line-height: 1.5; color: var(--ink); }
+.medidor .md-tx p { margin: 10px 0 12px; font-size: 15px; line-height: 1.5; color: var(--ink); text-align: justify; }
 .md-ley { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--muted); }
 .md-ley span { display: inline-flex; align-items: center; gap: 6px; }
 .md-ley i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
@@ -995,7 +995,23 @@ function seccionCiclos(R) {
     box,
     falta ? h('div', {class: 'c4-t'}, 'Hasta ahora se ha evaluado el ciclo ' + CNOM[R.solo_ciclo] + '. Los otros tres ciclos suman ' + falta + ' puntos más, que se ganan a medida que se ejecuten y se evalúen.') : null);
 }
+/* Medidor por entregas (clientes, salvo CEM): % de los 60 estándares con sus documentos entregados y al día */
+function medidorEntregas(R) {
+  const total = 60, al = R.rs.filter((r) => r.estado === 'Al día').length;
+  const val = Math.round(al * 100 / total);
+  const venc = R.rs.filter((r) => r.estado === 'Atrasado').length;
+  const tit = 'Avance de sus entregas';
+  const txt = 'La aguja marca cuántos de los ' + total + ' estándares tienen sus documentos entregados y al día: ' + al + ' de ' + total + '. Sube con cada documento que le entregue a su asesor y baja si alguno se vence.';
+  const et = al + ' de ' + total + ' al día' + (venc ? ' · ' + venc + (venc === 1 ? ' atrasado' : ' atrasados') : '');
+  const ecl = val < 60 ? 'bad' : val <= 85 ? 'warn' : 'ok';
+  const num = h('b', null, '0');
+  const ley = h('div', {class: 'md-ley'}, ...[['#E9AEB4', 'Bajo', 'menos de 60'], ['#F2D597', 'En avance', '60 a 85'], ['#A9D7C0', 'Al día', 'más de 85']].map(([c, a, b]) => h('span', null, h('i', {style: 'background:' + c}), h('b', null, a), ' ' + b)));
+  return h('section', {class: 'card medidor rise', 'aria-label': tit + ': ' + val + ' de 100'},
+    h('div', {class: 'velo-w'}, velocimetro(val, num), h('div', {class: 'vn'}, num, h('small', null, '%'))),
+    h('div', {class: 'md-tx'}, h('div', {class: 'eyebrow'}, 'Su medidor'), h('h2', null, tit), pill(et, ecl), h('p', null, txt), ley));
+}
 function seccionMedidor(R) {
+  if (MODO === 'cliente' && !R.solo_ciclo) return medidorEntregas(R);
   const val = R.puntaje == null ? 0 : Math.round(R.puntaje);
   const tit = R.solo_ciclo ? 'Avance de su SG-SST' : 'Puntaje de su SG-SST';
   const txt = R.puntaje == null ? 'Sin evaluación de estándares mínimos (Res. 0312 de 2019, art. 27), la empresa puede ser multada por el Ministerio del Trabajo (Ley 1562 de 2012, art. 13).'
