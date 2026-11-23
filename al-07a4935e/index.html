@@ -260,7 +260,7 @@ td { padding: 10px 12px; border-top: 1px solid var(--line); vertical-align: top;
 td.c, th.c { text-align: center; } td.m { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
 tr.cyc td { background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; padding: 7px 12px; }
 
-.foot { margin-bottom: 120px; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--title); border-radius: var(--r); box-shadow: var(--shadow); padding: 16px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; color: var(--ink); font-size: 14px; line-height: 1.45; }
+.foot { margin-bottom: 0; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--title); border-radius: var(--r); box-shadow: var(--shadow); padding: 16px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; color: var(--ink); font-size: 14px; line-height: 1.45; }
 .foot > div { display: grid; gap: 2px; min-width: 0; }
 .foot .fk { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--title); }
 .foot .fv { font-weight: 500; overflow-wrap: break-word; }
@@ -300,6 +300,14 @@ button.pc { cursor: pointer; } button.pc:hover { border-color: var(--accent); }
 .frente-h { color: var(--title); font-size: 15px; margin: 20px 0 8px; padding: 8px 12px; border-left: 4px solid var(--title); background: var(--accent-soft); border-radius: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
 .frente-h span { font-size: 12px; font-weight: 500; opacity: .8; }
 .pc-none { color: var(--muted); }
+/* Sello de cierre (José 2026-11-23): «SG-SST» y debajo la sigla de la empresa en su color */
+.sello { --s1: var(--accent); --s2: #5FB89A; margin: 34px auto 130px; text-align: center; display: grid; justify-items: center; gap: 10px; padding: 0 16px; }
+.sello-g { font-family: var(--f-display); font-weight: 700; font-size: clamp(46px, 12vw, 76px); line-height: 1; letter-spacing: .07em; padding-left: .07em; background: linear-gradient(135deg, var(--s1) 10%, var(--s2) 90%); -webkit-background-clip: text; background-clip: text; color: transparent; opacity: .9; filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--s1) 18%, transparent)); }
+.sello-e { display: flex; align-items: center; gap: 14px; color: var(--s1); font-weight: 600; font-size: clamp(13px, 3.4vw, 15px); letter-spacing: .48em; padding-left: .48em; text-transform: uppercase; }
+.sello-e::before, .sello-e::after { content: ""; width: 38px; height: 1px; background: linear-gradient(90deg, transparent, var(--s1)); }
+.sello-e::after { background: linear-gradient(90deg, var(--s1), transparent); }
+.sello-l { font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); max-width: 300px; line-height: 1.6; }
+@media print { .sello { margin-bottom: 0; } }
 .plg { --c1: var(--plg1, var(--accent)); --c2: var(--plg2, #5FB89A); position: relative; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16,32,27,.05), 0 6px 18px rgba(16,32,27,.05); overflow: hidden; transition: box-shadow .3s ease, transform .3s ease, border-color .3s ease; }
 .plg::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--c1), var(--c2)); opacity: .85; }
 .plg:hover { box-shadow: 0 2px 4px rgba(16,32,27,.06), 0 14px 32px rgba(16,32,27,.09); transform: translateY(-1px); }
@@ -756,13 +764,24 @@ function render() {
   if (R) viewEmpresa(main, R); else viewPanorama(main);
   /* Medidor de primero (José 2026-11-23): en el celular lo primero que ve el cliente es su medidor. */
   if (R) { const m = main.querySelector('.medidor'); let top = m; while (top && top.parentNode !== main) top = top.parentNode; if (top && main.firstChild !== top) main.insertBefore(top, main.firstChild); }
+  const SELLO = sello(R);
   main.append(h('footer', {class: 'foot'},
     h('div', null, h('span', {class: 'fk'}, 'Elaboró'), h('span', {class: 'fv'}, 'José Alean Viloria', h('small', null, 'Asesor Externo en SST'))),
     h('div', null, h('span', {class: 'fk'}, 'Marco normativo'), h('span', {class: 'fv'}, 'Ley 1562 de 2012 · Decreto 1072 de 2015 · Resolución 0312 de 2019')),
     MODO === 'cliente' && SYNC ? h('div', null, h('span', {class: 'fk'}, 'Última actualización'), h('span', {class: 'fv'}, fmt(pd(SYNC)), h('small', null, 'Los estados se calculan con la fecha de hoy'))) : h('div', null, h('span', {class: 'fk'}, 'Datos'), h('span', {class: 'fv'}, 'Registrados al ' + fmt(pd(CORTE)), h('small', null, 'Los estados se calculan con la fecha de hoy')))));
   document.getElementById('corte').textContent = fmt(pd(MODO === 'cliente' && SYNC ? SYNC : CORTE));
   tip.style.opacity = 0;
+  main.append(SELLO);
   if (MODO === 'cliente' || R) plegarCliente(main, R); /* José 2026-11-23: también en su tablero, al entrar a una empresa */
+}
+/* Sello de cierre al final de la página */
+function sello(R) {
+  const m = (R && R.marca) || {};
+  const sig = R ? (m.sigla || CORTO[R.empresa] || R.empresa) : 'Seguimiento';
+  const el = h('div', {class: 'sello', 'aria-hidden': 'true'}, h('div', {class: 'sello-g'}, 'SG-SST'), h('div', {class: 'sello-e'}, sig),
+    h('div', {class: 'sello-l'}, 'Sistema de Gestión de la Seguridad y Salud en el Trabajo'));
+  if (m.color) { el.style.setProperty('--s1', m.color); el.style.setProperty('--s2', m.color2 || m.color); }
+  return el;
 }
 /* Secciones desplegables en las páginas de cliente (José 2026-11-23: «el cliente se aburre de bajar y bajar»).
    Arriba quedan abiertos la bienvenida, la frase, el medidor y las novedades; lo demás se abre al tocarlo. */
