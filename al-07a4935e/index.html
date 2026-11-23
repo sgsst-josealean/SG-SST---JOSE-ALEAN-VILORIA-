@@ -838,7 +838,7 @@ function porTrabajador(emp) {
   return ws.sort((a, b) => RANGO[a.peor.est] - RANGO[b.peor.est] || (a.peor.dias ?? 1e9) - (b.peor.dias ?? 1e9) || a.trabajador.localeCompare(b.trabajador));
 }
 /* Seguridad social por trabajador (José 2026-11-23): ARL, EPS y Fondo de pensiones; se guardan en los documentos del trabajador */
-const SSK = ['arl', 'eps', 'afp'], SSL = {arl: 'ARL', eps: 'EPS', afp: 'Fondo de pensiones'};
+const SSK = ['cc', 'arl', 'eps', 'afp'], SSL = {cc: 'Cédula', arl: 'ARL', eps: 'EPS', afp: 'Fondo de pensiones'};
 function celdaSS(w, k) {
   const v = w[k];
   if (!CAN) return h('span', {class: v ? 'ss-v' : 'pc-none'}, v || '—');
@@ -849,11 +849,11 @@ function abrirSS(w) {
   MODAL = true;
   const ov = h('div', {class: 'ov', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'ss-titulo'});
   const f = h('form', {class: 'modal'});
-  const ins = {}; for (const k of SSK) ins[k] = h('input', {type: 'text', id: 'ss-' + k, maxlength: '60', value: w[k] || '', placeholder: k === 'arl' ? 'Ej.: Positiva' : k === 'eps' ? 'Ej.: Sanitas' : 'Ej.: Porvenir'});
+  const ins = {}; for (const k of SSK) ins[k] = h('input', {type: 'text', id: 'ss-' + k, maxlength: '60', value: w[k] || '', placeholder: k === 'cc' ? 'Número de cédula' : k === 'arl' ? 'Ej.: Positiva' : k === 'eps' ? 'Ej.: Sanitas' : 'Ej.: Porvenir'});
   const err = h('p', {class: 'err', hidden: 'hidden'});
   const guardar = h('button', {class: 'btn', type: 'submit'}, 'Guardar'), cancelar = h('button', {class: 'btn ghost', type: 'button'}, 'Cancelar');
   const cerrar = () => { ov.remove(); MODAL = false; render(true); }; cancelar.onclick = cerrar;
-  f.append(h('h2', {id: 'ss-titulo'}, 'Seguridad social'), h('p', {class: 'mut'}, w.trabajador + (w.cargo ? ' · ' + w.cargo : '')), ...SSK.flatMap((k) => [h('label', {for: 'ss-' + k}, SSL[k]), ins[k]]), err, h('div', {class: 'acts'}, cancelar, guardar));
+  f.append(h('h2', {id: 'ss-titulo'}, 'Datos del trabajador'), h('p', {class: 'mut'}, w.trabajador + (w.cargo ? ' · ' + w.cargo : '')), ...SSK.flatMap((k) => [h('label', {for: 'ss-' + k}, SSL[k]), ins[k]]), err, h('div', {class: 'acts'}, cancelar, guardar));
   f.addEventListener('submit', async (e) => {
     e.preventDefault(); guardar.disabled = true; guardar.textContent = 'Guardando…';
     const val = {}; for (const k of SSK) val[k] = ins[k].value.trim().slice(0, 60);
@@ -882,7 +882,7 @@ function seccionPersonal(R) {
   if (!ws.length) { sec.append(h('div', {class: 'empty'}, CAN ? 'Aún no hay documentos del personal. Usa «+ Agregar trabajador o documento».' : 'Aún no hay documentos del personal registrados.')); return sec; }
   const n = (e) => ws.filter((w) => w.peor.est === e).length;
   sec.append(h('div', {class: 'tools'}, pill(ws.length + (ws.length === 1 ? ' trabajador' : ' trabajadores'), 'mute'), n('Vencido') ? pill(n('Vencido') + ' con algo vencido o sin realizar', 'bad') : null, n('Por vencer') ? pill(n('Por vencer') + ' con algo por vencer', 'warn') : null, n('Al día') ? pill(n('Al día') + ' al día', 'ok') : null));
-  const SSV = CAN || ws.some((w) => SSK.some((k) => w[k])) ? SSK : [];
+  const SSV = CAN ? SSK : SSK.filter((k) => ws.some((w) => w[k]));
   const frente = (w) => String(w.proyecto || 'Sin frente de obra asignado').split(' · ')[0].trim();
   const grupos = new Map();
   for (const w of ws) { const f = frente(w); if (!grupos.has(f)) grupos.set(f, []); grupos.get(f).push(w); }
