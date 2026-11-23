@@ -914,7 +914,9 @@ function porTrabajador(emp) {
   for (const p of persDe(emp)) { const k = p.empresa + '|' + p.trabajador; if (!m.has(k)) m.set(k, {empresa: p.empresa, trabajador: p.trabajador, cargo: p.cargo, proyecto: p.proyecto, docs: []}); m.get(k).docs.push(p); }
   const ws = [...m.values()];
   for (const w of ws) { w.peor = w.docs.reduce((a, d) => (RANGO[d.est] < RANGO[a.est] ? d : a), w.docs[0]); for (const k of SSK) w[k] = (w.docs.find((d) => d[k]) || {})[k] || ''; }
-  return ws.sort((a, b) => RANGO[a.peor.est] - RANGO[b.peor.est] || (a.peor.dias ?? 1e9) - (b.peor.dias ?? 1e9) || a.trabajador.localeCompare(b.trabajador));
+  /* José 2026-11-23: en la lista de cada empresa va primero el representante legal, luego los trabajadores fijos y después los subcontratistas. */
+  const JER = (w) => /representante legal/i.test(w.cargo || '') ? 0 : /fijo/i.test((w.proyecto || '') + ' ' + w.docs.map((d) => d.proyecto || '').join(' ')) ? 1 : 2;
+  return ws.sort((a, b) => (emp ? JER(a) - JER(b) : 0) || RANGO[a.peor.est] - RANGO[b.peor.est] || (a.peor.dias ?? 1e9) - (b.peor.dias ?? 1e9) || a.trabajador.localeCompare(b.trabajador));
 }
 /* Seguridad social por trabajador (José 2026-11-23): ARL, EPS y Fondo de pensiones; se guardan en los documentos del trabajador */
 const SSK = ['cc', 'arl', 'eps', 'afp'], SSL = {cc: 'Cédula', arl: 'ARL', eps: 'EPS', afp: 'Fondo de pensiones'};
