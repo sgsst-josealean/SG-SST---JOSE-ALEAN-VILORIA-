@@ -300,6 +300,7 @@ button.pc { cursor: pointer; } button.pc:hover { border-color: var(--accent); }
 .frente-h { color: var(--title); font-size: 15px; margin: 20px 0 8px; padding: 8px 12px; border-left: 4px solid var(--title); background: var(--accent-soft); border-radius: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
 .frente-h span { font-size: 12px; font-weight: 500; opacity: .8; }
 .pc-none { color: var(--muted); }
+.ss-v { font-weight: 600; font-size: 13px; } .pc.ss-b { font-weight: 600; font-size: 13px; } .ss-h { min-width: 110px; }
 .regf { margin-top: 12px; padding: 12px 14px; border: 1px dashed var(--accent); border-radius: 12px; display: grid; gap: 8px; font-size: 13.5px; }
 .regf p { margin: 0; color: var(--muted); } .regf p b { color: var(--ink); font-weight: 600; }
 .regf select { flex: 1 1 0; width: 100%; min-width: 0; max-width: 100%; } .regf .btn { flex: 0 0 auto; } .regf .linkc { flex-wrap: nowrap; } @media (max-width: 560px) { .regf .linkc { flex-wrap: wrap; } }
@@ -804,8 +805,8 @@ function confirmarQuitar(btn, x) {
   setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = 'Quitar'; btn.classList.remove('danger'); } }, 4000);
 }
 /* Vencimientos del personal (tablero del asesor; en las páginas de cliente solo las empresas de PERS_CLIENTE, de solo lectura) */
-const PERS_CLIENTE = [];
-let PERS = [];
+const PERS_CLIENTE = ["CEM"];
+let PERS = [{"empresa": "CEM", "trabajador": "Eduar Enrique Martinez Arrieta", "cargo": "Técnico de aires", "proyecto": "SMI Colombia · subcontratista", "documento": "Afiliación ARL / PILA", "expedicion": "2026-11-05", "vence": "2026-12-05"}, {"empresa": "CEM", "trabajador": "Ismar Morales Navarro", "cargo": "Técnico de aires", "proyecto": "SMI Colombia · subcontratista", "documento": "Afiliación ARL / PILA", "expedicion": "2026-11-05", "vence": "2026-12-05"}, {"empresa": "CEM", "trabajador": "Jeferson Giovanny Lizcano", "cargo": "Técnico electricista", "proyecto": "SMI Colombia · subcontratista", "documento": "Afiliación ARL / PILA", "expedicion": "", "vence": "", "arl": "Positiva", "eps": "Aliansalud", "afp": "Porvenir"}, {"empresa": "CEM", "trabajador": "Jeferson Giovanny Lizcano", "cargo": "Técnico electricista", "proyecto": "SMI Colombia · subcontratista", "documento": "Curso de trabajo en alturas (reentrenamiento)", "expedicion": "2026-10-28", "vence": "2028-04-28", "arl": "Positiva", "eps": "Aliansalud", "afp": "Porvenir"}, {"empresa": "CEM", "trabajador": "Jeferson Giovanny Lizcano", "cargo": "Técnico electricista", "proyecto": "SMI Colombia · subcontratista", "documento": "Examen médico ocupacional", "expedicion": "2026-10-28", "vence": "2027-10-28", "arl": "Positiva", "eps": "Aliansalud", "afp": "Porvenir"}, {"empresa": "CEM", "trabajador": "Juan José Bastidas Romo", "cargo": "Apoyo de Proyectos", "proyecto": "SMI Colombia · trabajador fijo de CEM", "documento": "Afiliación ARL / PILA", "expedicion": "2026-11-11", "vence": "2026-12-11", "arl": "Positiva", "eps": "Sanitas", "afp": "Colpensiones"}, {"empresa": "CEM", "trabajador": "Juan José Bastidas Romo", "cargo": "Apoyo de Proyectos", "proyecto": "SMI Colombia · trabajador fijo de CEM", "documento": "Examen médico ocupacional", "expedicion": "2026-03-04", "vence": "2027-03-04", "arl": "Positiva", "eps": "Sanitas", "afp": "Colpensiones"}, {"empresa": "CEM", "trabajador": "Miguel Alejandro Cepeda Rojas", "cargo": "Representante legal / Líder de Proyectos", "proyecto": "SMI Colombia · trabajador fijo de CEM", "documento": "Afiliación ARL / PILA", "expedicion": "2026-11-11", "vence": "2026-12-11", "arl": "Positiva", "eps": "Sanitas", "afp": "Colfondos"}, {"empresa": "CEM", "trabajador": "Miguel Alejandro Cepeda Rojas", "cargo": "Representante legal / Líder de Proyectos", "proyecto": "SMI Colombia · trabajador fijo de CEM", "documento": "Examen médico ocupacional", "expedicion": "2026-11-18", "vence": "2029-11-18", "arl": "Positiva", "eps": "Sanitas", "afp": "Colfondos"}, {"empresa": "CEM", "trabajador": "Wilson Orlando Amezquita", "cargo": "Técnico de apoyo", "proyecto": "SMI Colombia · subcontratista", "documento": "Afiliación ARL / PILA", "expedicion": "", "vence": "", "arl": "Positiva", "eps": "Compensar"}];
 const TIPOS = [['Examen médico ocupacional', 12], ['Curso de trabajo en alturas (reentrenamiento)', 18], ['Certificado vocacional de alturas', 0], ['Curso de coordinador de alturas', 0], ['Inducción / reinducción en SST', 12], ['Afiliación ARL / PILA', 1], ['Licencia de conducción', 0], ['Otro documento', 0]];
 const AVISO_P = 30;
 const masMeses = (iso, m) => { const [y, mo, d] = iso.split('-').map(Number); const t = new Date(Date.UTC(y, mo - 1 + m, d)); return t.toISOString().slice(0, 10); };
@@ -832,8 +833,33 @@ function porTrabajador(emp) {
   const m = new Map();
   for (const p of persDe(emp)) { const k = p.empresa + '|' + p.trabajador; if (!m.has(k)) m.set(k, {empresa: p.empresa, trabajador: p.trabajador, cargo: p.cargo, proyecto: p.proyecto, docs: []}); m.get(k).docs.push(p); }
   const ws = [...m.values()];
-  for (const w of ws) { w.peor = w.docs.reduce((a, d) => (RANGO[d.est] < RANGO[a.est] ? d : a), w.docs[0]); }
+  for (const w of ws) { w.peor = w.docs.reduce((a, d) => (RANGO[d.est] < RANGO[a.est] ? d : a), w.docs[0]); for (const k of SSK) w[k] = (w.docs.find((d) => d[k]) || {})[k] || ''; }
   return ws.sort((a, b) => RANGO[a.peor.est] - RANGO[b.peor.est] || (a.peor.dias ?? 1e9) - (b.peor.dias ?? 1e9) || a.trabajador.localeCompare(b.trabajador));
+}
+/* Seguridad social por trabajador (José 2026-11-23): ARL, EPS y Fondo de pensiones; se guardan en los documentos del trabajador */
+const SSK = ['arl', 'eps', 'afp'], SSL = {arl: 'ARL', eps: 'EPS', afp: 'Fondo de pensiones'};
+function celdaSS(w, k) {
+  const v = w[k];
+  if (!CAN) return h('span', {class: v ? 'ss-v' : 'pc-none'}, v || '—');
+  const b = h('button', {class: v ? 'pc ss-b' : 'pc-add', type: 'button', title: 'Editar ARL, EPS y fondo de pensiones'}, v || '+ Agregar');
+  b.onclick = () => abrirSS(w); return b;
+}
+function abrirSS(w) {
+  MODAL = true;
+  const ov = h('div', {class: 'ov', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'ss-titulo'});
+  const f = h('form', {class: 'modal'});
+  const ins = {}; for (const k of SSK) ins[k] = h('input', {type: 'text', id: 'ss-' + k, maxlength: '60', value: w[k] || '', placeholder: k === 'arl' ? 'Ej.: Positiva' : k === 'eps' ? 'Ej.: Sanitas' : 'Ej.: Porvenir'});
+  const err = h('p', {class: 'err', hidden: 'hidden'});
+  const guardar = h('button', {class: 'btn', type: 'submit'}, 'Guardar'), cancelar = h('button', {class: 'btn ghost', type: 'button'}, 'Cancelar');
+  const cerrar = () => { ov.remove(); MODAL = false; render(true); }; cancelar.onclick = cerrar;
+  f.append(h('h2', {id: 'ss-titulo'}, 'Seguridad social'), h('p', {class: 'mut'}, w.trabajador + (w.cargo ? ' · ' + w.cargo : '')), ...SSK.flatMap((k) => [h('label', {for: 'ss-' + k}, SSL[k]), ins[k]]), err, h('div', {class: 'acts'}, cancelar, guardar));
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault(); guardar.disabled = true; guardar.textContent = 'Guardando…';
+    const val = {}; for (const k of SSK) val[k] = ins[k].value.trim().slice(0, 60);
+    try { for (const d of w.docs) { const {id, est, cls, dias, ...resto} = d; await DB.collection('personal').doc(id).set({...resto, ...val}); } cerrar(); toast('Seguridad social guardada.'); }
+    catch (x) { guardar.disabled = false; guardar.textContent = 'Guardar'; err.textContent = 'No se pudo guardar. Inténtalo otra vez.'; err.hidden = false; }
+  });
+  ov.append(f); ov.onclick = (e) => { if (e.target === ov) cerrar(); }; document.body.append(ov); ins.arl.focus();
 }
 function celdaDoc(w, d, tipo) {
   if (!d) {
@@ -855,6 +881,7 @@ function seccionPersonal(R) {
   if (!ws.length) { sec.append(h('div', {class: 'empty'}, CAN ? 'Aún no hay documentos del personal. Usa «+ Agregar trabajador o documento».' : 'Aún no hay documentos del personal registrados.')); return sec; }
   const n = (e) => ws.filter((w) => w.peor.est === e).length;
   sec.append(h('div', {class: 'tools'}, pill(ws.length + (ws.length === 1 ? ' trabajador' : ' trabajadores'), 'mute'), n('Vencido') ? pill(n('Vencido') + ' con algo vencido', 'bad') : null, n('Por vencer') ? pill(n('Por vencer') + ' con algo por vencer', 'warn') : null, n('Al día') ? pill(n('Al día') + ' al día', 'ok') : null));
+  const SSV = CAN || ws.some((w) => SSK.some((k) => w[k])) ? SSK : [];
   const frente = (w) => String(w.proyecto || 'Sin frente de obra asignado').split(' · ')[0].trim();
   const grupos = new Map();
   for (const w of ws) { const f = frente(w); if (!grupos.has(f)) grupos.set(f, []); grupos.get(f).push(w); }
@@ -868,11 +895,12 @@ function seccionPersonal(R) {
       const nota = String(w.proyecto || '').split(' · ').slice(1).join(' · ');
       tb.append(h('tr', null,
         h('td', null, h('div', {class: 'pw'}, h('span', {class: 'pw-av ' + w.peor.cls}, w.trabajador.split(/\s+/).slice(0, 2).map((x) => x[0] || '').join('').toUpperCase()), h('div', null, h('b', null, w.trabajador), h('small', null, w.cargo || 'Sin cargo'), nota ? h('small', null, nota.charAt(0).toUpperCase() + nota.slice(1)) : null))),
+        ...SSV.map((k) => h('td', null, celdaSS(w, k))),
         ...PCOLS.map(([t], i) => h('td', null, celdaDoc(w, fijos[i], t))),
         h('td', null, otros.length ? h('div', {class: 'pc-list'}, ...otros.map((d) => { const c = celdaDoc(w, d, d.documento); c.prepend(h('span', {class: 'pc-name'}, d.documento)); return c; })) : h('span', {class: 'pc-none'}, '—'))));
     }
     sec.append(h('h3', {class: 'frente-h'}, 'Frente de obra: ' + f, h('span', null, g.length + (g.length === 1 ? ' trabajador' : ' trabajadores'))));
-    sec.append(h('div', {class: 'tw'}, h('table', {class: 'ptab'}, h('thead', null, h('tr', null, h('th', {style: 'min-width:240px'}, 'Trabajador'), ...PCOLS.map(([, l]) => h('th', null, l)), h('th', {style: 'min-width:200px'}, 'Otros documentos'))), tb)));
+    sec.append(h('div', {class: 'tw'}, h('table', {class: 'ptab'}, h('thead', null, h('tr', null, h('th', {style: 'min-width:240px'}, 'Trabajador'), ...SSV.map((k) => h('th', {class: 'ss-h'}, SSL[k])), ...PCOLS.map(([, l]) => h('th', null, l)), h('th', {style: 'min-width:200px'}, 'Otros documentos'))), tb)));
   }
   return sec;
 }
@@ -938,6 +966,7 @@ function abrirPersonal(emp, p, pre) {
     if (!tra.value.trim() || !documento || !ven.value) { err.textContent = 'Escribe el trabajador, el documento y la fecha de vencimiento.'; err.hidden = false; return; }
     guardar.disabled = true; guardar.textContent = 'Guardando…';
     const doc = {empresa: emp, trabajador: tra.value.trim().slice(0, 80), cargo: car.value.trim().slice(0, 80), proyecto: pro.value.trim().slice(0, 80), documento: documento.slice(0, 80), expedicion: exp.value || '', vence: ven.value, creado: new Date().toISOString()};
+    { const base = p || PERS.find((x) => x.empresa === emp && x.trabajador === doc.trabajador && SSK.some((k) => x[k])) || {}; for (const k of SSK) if (base[k]) doc[k] = base[k]; if (p && p.soporte) doc.soporte = p.soporte; }
     const id = p ? p.id : (SLUG[emp] + '-' + (doc.trabajador + '-' + doc.documento).normalize('NFD').replace(/[^\w]+/g, '-').toLowerCase()).slice(0, 150);
     try { await DB.collection('personal').doc(id).set(doc); ov.remove(); MODAL = false; toast('Documento guardado.'); render(true); }
     catch (x) { guardar.disabled = false; guardar.textContent = 'Guardar'; err.textContent = 'No se pudo guardar (' + ((x && x.code) || 'error') + '). Inténtalo otra vez.'; err.hidden = false; }
