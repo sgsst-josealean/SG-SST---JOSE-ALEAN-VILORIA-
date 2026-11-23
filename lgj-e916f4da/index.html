@@ -300,6 +300,36 @@ button.pc { cursor: pointer; } button.pc:hover { border-color: var(--accent); }
 .frente-h { color: var(--title); font-size: 15px; margin: 20px 0 8px; padding: 8px 12px; border-left: 4px solid var(--title); background: var(--accent-soft); border-radius: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
 .frente-h span { font-size: 12px; font-weight: 500; opacity: .8; }
 .pc-none { color: var(--muted); }
+.plg { --c1: var(--plg1, var(--accent)); --c2: var(--plg2, #5FB89A); position: relative; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16,32,27,.05), 0 6px 18px rgba(16,32,27,.05); overflow: hidden; transition: box-shadow .3s ease, transform .3s ease, border-color .3s ease; }
+.plg::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--c1), var(--c2)); opacity: .85; }
+.plg:hover { box-shadow: 0 2px 4px rgba(16,32,27,.06), 0 14px 32px rgba(16,32,27,.09); transform: translateY(-1px); }
+.plg.abierto { border-color: color-mix(in srgb, var(--c1) 30%, var(--line)); box-shadow: 0 2px 4px rgba(16,32,27,.06), 0 16px 40px rgba(16,32,27,.10); transform: none; }
+.plg-h { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: flex; align-items: center; gap: 14px; padding: 16px 18px 16px 20px; -webkit-tap-highlight-color: transparent; }
+.plg-h:focus-visible { outline: 2px solid var(--c1); outline-offset: -3px; border-radius: 18px; }
+.plg-ic { flex: none; width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; color: #fff; background: linear-gradient(140deg, var(--c1), var(--c2)); box-shadow: 0 6px 14px color-mix(in srgb, var(--c1) 28%, transparent), inset 0 1px 0 rgba(255,255,255,.25); }
+.plg-ic svg { width: 22px; height: 22px; }
+.plg-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.plg-t { font-family: var(--f-display); font-weight: 600; font-size: clamp(16px, 2vw, 18px); color: var(--ink); line-height: 1.25; }
+.plg-m { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.plg-s { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.plg-chip { flex: none; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; letter-spacing: .01em; padding: 3px 10px 3px 8px; border-radius: 999px; white-space: nowrap; color: #2E6B58; background: #E6F6EF; border: 1px solid #C8EEDF; }
+.plg-chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .8; }
+.plg-chip.warn { color: #8A5A12; background: #FCF2DF; border-color: #F0DDB4; }
+.plg-chip.neu { color: color-mix(in srgb, var(--c1) 80%, #000); background: color-mix(in srgb, var(--c1) 9%, #fff); border-color: color-mix(in srgb, var(--c1) 22%, #fff); }
+.plg-v { flex: none; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.plg-cv { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: var(--c1); background: color-mix(in srgb, var(--c1) 10%, #fff); border: 1px solid color-mix(in srgb, var(--c1) 20%, #fff); transition: transform .4s cubic-bezier(.3,.7,.2,1), background .3s, color .3s; }
+.plg-cv svg { width: 18px; height: 18px; }
+.plg.abierto .plg-cv { transform: rotate(180deg); background: var(--c1); color: #fff; border-color: transparent; }
+.plg-b { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.3,.7,.2,1); }
+.plg.abierto .plg-b { grid-template-rows: 1fr; }
+.plg-i { min-height: 0; overflow: hidden; opacity: 0; transform: translateY(-6px); transition: opacity .35s ease, transform .45s cubic-bezier(.3,.7,.2,1); }
+.plg.abierto .plg-i { opacity: 1; transform: none; border-top: 1px dashed var(--line); padding-top: 12px; }
+.plg-i > * { margin: 0 12px 12px !important; }
+.plg-i > .card, .plg-i > .hero { box-shadow: none; }
+@media (max-width: 560px) { .plg { border-radius: 16px; } .plg-h { padding: 14px 14px 14px 16px; gap: 12px; } .plg-ic { width: 40px; height: 40px; border-radius: 12px; } .plg-ic svg { width: 20px; height: 20px; } .plg-s { font-size: 12.5px; } .plg-ver { display: none; } .plg-cv { width: 32px; height: 32px; } .plg-i > * { margin: 0 6px 8px !important; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .plg-chip { color: #9ADBC4; background: #16302A; border-color: #24463C; } :root:not([data-theme="light"]) .plg-chip.warn { color: #E9C77F; background: #2E2614; border-color: #4A3C1C; } :root:not([data-theme="light"]) .plg-cv { background: #16302A; border-color: #24463C; } }
+@media (prefers-reduced-motion: reduce) { .plg, .plg-b, .plg-i, .plg-cv { transition: none; } }
+@media print { .plg-b { grid-template-rows: 1fr !important; } .plg-i { opacity: 1 !important; transform: none !important; } .plg-h .plg-v { display: none; } }
 .ss-v { font-weight: 600; font-size: 13px; } .pc.ss-b { font-weight: 600; font-size: 13px; } .ss-h { min-width: 110px; }
 .regf { margin-top: 12px; padding: 12px 14px; border: 1px dashed var(--accent); border-radius: 12px; display: grid; gap: 8px; font-size: 13.5px; }
 .regf p { margin: 0; color: var(--muted); } .regf p b { color: var(--ink); font-weight: 600; }
@@ -731,6 +761,54 @@ function render() {
     MODO === 'cliente' && SYNC ? h('div', null, h('span', {class: 'fk'}, 'Última actualización'), h('span', {class: 'fv'}, fmt(pd(SYNC)), h('small', null, 'Los estados se calculan con la fecha de hoy'))) : h('div', null, h('span', {class: 'fk'}, 'Datos'), h('span', {class: 'fv'}, 'Registrados al ' + fmt(pd(CORTE)), h('small', null, 'Los estados se calculan con la fecha de hoy')))));
   document.getElementById('corte').textContent = fmt(pd(MODO === 'cliente' && SYNC ? SYNC : CORTE));
   tip.style.opacity = 0;
+  if (MODO === 'cliente') plegarCliente(main);
+}
+/* Secciones desplegables en las páginas de cliente (José 2026-11-23: «el cliente se aburre de bajar y bajar»).
+   Arriba quedan abiertos la bienvenida, la frase, el medidor y las novedades; lo demás se abre al tocarlo. */
+const PLG_ABIERTOS = new Set();
+const PLG_IC = {
+  ciclos: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v8.5l6 6"/>',
+  empresa: '<path d="M4 20.5V6l8-3 8 3v14.5"/><path d="M9 20.5v-4h6v4M8 9h2M14 9h2M8 13h2M14 13h2"/>',
+  avance: '<path d="M4 19.5h16"/><path d="M6.5 16v-4M11 16V8M15.5 16v-6M20 16V5"/>',
+  entregas: '<rect x="4.5" y="4" width="15" height="16.5" rx="2.5"/><path d="M8.5 10.5l2.3 2.3 4.7-4.6M8.5 16.5h7"/>',
+  personal: '<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16 14.6c2.4-.1 4 1.4 4.5 4.4"/>',
+  estandares: '<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.4-4.4"/>',
+  evidencias: '<path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5M9 13h6M9 16.5h4"/>'
+};
+function plegable(el, titulo, chip, ic, sub, tono) {
+  if (!el || !el.parentNode) return;
+  const key = titulo, abierto = PLG_ABIERTOS.has(key);
+  const caja = h('div', {class: 'plg' + (abierto ? ' abierto' : '')});
+  const cuerpo = h('div', {class: 'plg-b', id: 'plg-' + titulo.normalize('NFD').replace(/[^\w]+/g, '-').toLowerCase()});
+  const ico = h('span', {class: 'plg-ic', 'aria-hidden': 'true'});
+  ico.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (PLG_IC[ic] || PLG_IC.evidencias) + '</svg>';
+  const btn = h('button', {class: 'plg-h', type: 'button', 'aria-expanded': String(abierto), 'aria-controls': cuerpo.id},
+    ico,
+    h('span', {class: 'plg-tx'}, h('span', {class: 'plg-t'}, titulo),
+      (chip || sub) ? h('span', {class: 'plg-m'}, chip ? h('span', {class: 'plg-chip' + (tono ? ' ' + tono : '')}, chip) : null, sub ? h('span', {class: 'plg-s'}, sub) : null) : null),
+    h('span', {class: 'plg-v'}, h('span', {class: 'plg-ver'}, abierto ? 'Ocultar' : 'Ver'), h('span', {class: 'plg-cv'})));
+  btn.querySelector('.plg-cv').innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  el.parentNode.insertBefore(caja, el);
+  const inner = h('div', {class: 'plg-i'}); inner.append(el); cuerpo.append(inner); caja.append(btn, cuerpo);
+  btn.onclick = () => { const a = !caja.classList.contains('abierto'); caja.classList.toggle('abierto', a); btn.setAttribute('aria-expanded', String(a)); btn.querySelector('.plg-ver').textContent = a ? 'Ocultar' : 'Ver'; if (a) PLG_ABIERTOS.add(key); else PLG_ABIERTOS.delete(key); };
+}
+function plegarCliente(main) {
+  const R = RES.find((r) => SLUG[r.empresa] === SLUG[EMPRESAS[0].empresa]) || RES[0] || {};
+  if (R.marca && R.marca.color) { main.style.setProperty('--plg1', R.marca.color); main.style.setProperty('--plg2', R.marca.color2 || R.marca.color); }
+  const porH2 = (txt) => [...main.querySelectorAll(':scope > section.card, :scope > div')].find((s) => { const t = s.querySelector('h2'); return t && t.textContent.trim().startsWith(txt); });
+  const txt = (el, sel) => { const x = el && el.querySelector(sel); return x ? x.textContent.replace(/\s+/g, ' ').trim() : ''; };
+  const c4 = main.querySelector(':scope > .ciclos4');
+  if (c4) { const on = c4.querySelectorAll('.st.on').length; plegable(c4, 'Los 4 ciclos del PHVA', on === 4 ? 'Ciclo completo' : on ? on + ' de 4 evaluado' + (on === 1 ? '' : 's') : 'Por evaluar', 'ciclos', 'Planear, Hacer, Verificar y Actuar', 'neu'); }
+  const hero = main.querySelector(':scope > .hero');
+  if (hero) plegable(hero, 'Datos de la empresa', '', 'empresa', 'Identificación, responsables y marco normativo');
+  const av = porH2('Avance del'); if (av) plegable(av, txt(av, 'h2'), '', 'avance', 'Puntaje obtenido frente al esperado');
+  const r3 = main.querySelector(':scope > .row3');
+  if (r3) { const n = r3.querySelectorAll('.pi').length; plegable(r3, 'Entregas y pendientes', n ? n + (n === 1 ? ' pendiente' : ' pendientes') : 'Todo al día', 'entregas', 'Lo que debe entregar y sus fechas', n ? 'warn' : ''); }
+  const per = porH2('Vencimientos del personal'); if (per) { const pill = txt(per, '.tools .pill'); const mal = per.querySelectorAll('.bad, .warn').length; plegable(per, 'Personal y vencimientos', pill, 'personal', 'Trabajadores del momento, exámenes y cursos', mal ? 'warn' : ''); }
+  const est = porH2('Estándares') || porH2('Los 60'); if (est) { const n = est.querySelectorAll('tbody tr:not(.cyc)').length; plegable(est, txt(est, 'h2'), n ? n + ' estándares' : '', 'estandares', 'Calificación de cada ítem de la Res. 0312', 'neu'); }
+  const nov = [...main.children].find((s) => !s.classList.contains('plg') && /siguientes novedades|presenta/.test(s.textContent) && /^A hoy/.test(s.textContent.trim()));
+  const pri = main.querySelector(':scope > .plg'); if (nov && pri && pri.compareDocumentPosition(nov) & Node.DOCUMENT_POSITION_FOLLOWING) main.insertBefore(nov, pri);
+  const ev = porH2('Evidencias registradas'); if (ev) { const n = ev.querySelectorAll('.pi, .ev, li').length; plegable(ev, 'Evidencias registradas', n ? n + (n === 1 ? ' soporte' : ' soportes') : '', 'evidencias', 'Soportes cargados al sistema', 'neu'); }
 }
 /* Registro de evidencias (en vivo) */
 function btnReg(r, small) {
