@@ -762,7 +762,7 @@ function render() {
     MODO === 'cliente' && SYNC ? h('div', null, h('span', {class: 'fk'}, 'Última actualización'), h('span', {class: 'fv'}, fmt(pd(SYNC)), h('small', null, 'Los estados se calculan con la fecha de hoy'))) : h('div', null, h('span', {class: 'fk'}, 'Datos'), h('span', {class: 'fv'}, 'Registrados al ' + fmt(pd(CORTE)), h('small', null, 'Los estados se calculan con la fecha de hoy')))));
   document.getElementById('corte').textContent = fmt(pd(MODO === 'cliente' && SYNC ? SYNC : CORTE));
   tip.style.opacity = 0;
-  if (MODO === 'cliente') plegarCliente(main);
+  if (MODO === 'cliente' || R) plegarCliente(main, R); /* José 2026-11-23: también en su tablero, al entrar a una empresa */
 }
 /* Secciones desplegables en las páginas de cliente (José 2026-11-23: «el cliente se aburre de bajar y bajar»).
    Arriba quedan abiertos la bienvenida, la frase, el medidor y las novedades; lo demás se abre al tocarlo. */
@@ -774,6 +774,7 @@ const PLG_IC = {
   entregas: '<rect x="4.5" y="4" width="15" height="16.5" rx="2.5"/><path d="M8.5 10.5l2.3 2.3 4.7-4.6M8.5 16.5h7"/>',
   personal: '<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16 14.6c2.4-.1 4 1.4 4.5 4.4"/>',
   estandares: '<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.4-4.4"/>',
+  enlace: '<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>',
   evidencias: '<path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5M9 13h6M9 16.5h4"/>'
 };
 function plegable(el, titulo, chip, ic, sub, tono) {
@@ -793,8 +794,9 @@ function plegable(el, titulo, chip, ic, sub, tono) {
   const inner = h('div', {class: 'plg-i'}); inner.append(el); cuerpo.append(inner); caja.append(btn, cuerpo);
   btn.onclick = () => { const a = !caja.classList.contains('abierto'); caja.classList.toggle('abierto', a); btn.setAttribute('aria-expanded', String(a)); btn.querySelector('.plg-ver').textContent = a ? 'Ocultar' : 'Ver'; if (a) PLG_ABIERTOS.add(key); else PLG_ABIERTOS.delete(key); };
 }
-function plegarCliente(main) {
-  const R = RES.find((r) => SLUG[r.empresa] === SLUG[EMPRESAS[0].empresa]) || RES[0] || {};
+function plegarCliente(main, R0) {
+  const R = R0 || RES.find((r) => SLUG[r.empresa] === SLUG[EMPRESAS[0].empresa]) || RES[0] || {};
+  main.style.removeProperty('--plg1'); main.style.removeProperty('--plg2');
   if (R.marca && R.marca.color) { main.style.setProperty('--plg1', R.marca.color); main.style.setProperty('--plg2', R.marca.color2 || R.marca.color); }
   const porH2 = (txt) => [...main.querySelectorAll(':scope > section.card, :scope > div')].find((s) => { const t = s.querySelector('h2'); return t && t.textContent.trim().startsWith(txt); });
   const txt = (el, sel) => { const x = el && el.querySelector(sel); return x ? x.textContent.replace(/\s+/g, ' ').trim() : ''; };
@@ -803,6 +805,8 @@ function plegarCliente(main) {
   const hero = main.querySelector(':scope > .hero');
   if (hero) plegable(hero, 'Datos de la empresa', '', 'empresa', 'Identificación, responsables y marco normativo');
   const av = porH2('Avance del'); if (av) plegable(av, txt(av, 'h2'), '', 'avance', 'Puntaje obtenido frente al esperado');
+  const enl = porH2('Enlace web del cliente'); if (enl) plegable(enl, 'Enlace web del cliente', '', 'enlace', 'La página que ve el cliente y cómo compartirla');
+  const r2 = main.querySelector(':scope > .row2'); if (r2) plegable(r2, 'Puntaje Res. 0312', R.puntaje == null ? 'Sin evaluar' : Math.round(R.puntaje) + ' de 100', 'avance', 'Calificación de la evaluación de estándares mínimos', R.puntaje != null && R.puntaje < 85 ? 'warn' : 'neu');
   const r3 = main.querySelector(':scope > .row3');
   if (r3) { const n = r3.querySelectorAll('.pi').length; plegable(r3, 'Entregas y pendientes', n ? n + (n === 1 ? ' pendiente' : ' pendientes') : 'Todo al día', 'entregas', 'Lo que debe entregar y sus fechas', n ? 'warn' : ''); }
   const per = porH2('Vencimientos del personal'); if (per) { const pill = txt(per, '.tools .pill'); const mal = per.querySelectorAll('.bad, .warn').length; plegable(per, 'Personal y vencimientos', pill, 'personal', 'Trabajadores del momento, exámenes y cursos', mal ? 'warn' : ''); }
