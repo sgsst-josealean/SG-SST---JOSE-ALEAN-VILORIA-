@@ -1156,7 +1156,7 @@ if (MODO === 'cliente') {
   if (MODO === 'cliente') return;
   if (!db) { LIVE = 'consulta'; render(true); return; }
   db.collection('personal').onSnapshot((snap) => {
-    PERS = snap.docs.map((d) => ({id: d.id, ...d.data()})).filter((x) => x && x.empresa && x.trabajador && x.documento && /^\d{4}-\d{2}-\d{2}$/.test(String(x.vence || '')));
+    PERS = snap.docs.map((d) => ({id: d.id, ...d.data()})).filter((x) => x && x.empresa && x.trabajador && x.documento && (!x.vence || /^\d{4}-\d{2}-\d{2}$/.test(String(x.vence))));
     render(true);
   }, () => {});
   db.collection('evidencias').onSnapshot((snap) => {
