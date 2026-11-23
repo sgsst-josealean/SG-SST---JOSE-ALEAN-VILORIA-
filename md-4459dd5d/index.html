@@ -811,12 +811,13 @@ const TIPOS = [['Examen médico ocupacional', 12], ['Curso de trabajo en alturas
 const AVISO_P = 30;
 const masMeses = (iso, m) => { const [y, mo, d] = iso.split('-').map(Number); const t = new Date(Date.UTC(y, mo - 1 + m, d)); return t.toISOString().slice(0, 10); };
 function estadoPers(p) {
+  if (p.pendiente) return {...p, est: 'Vencido', cls: 'bad', dias: null, pend: true}; /* No realizado (José 2026-11-23) */
   const v = pd(p.vence); if (v == null) return {...p, est: 'Sin fecha', cls: 'mute', dias: null};
   const dias = Math.round((v - HOY) / 864e5);
   return {...p, dias, est: dias < 0 ? 'Vencido' : dias <= AVISO_P ? 'Por vencer' : 'Al día', cls: dias < 0 ? 'bad' : dias <= AVISO_P ? 'warn' : 'ok'};
 }
 const persDe = (emp) => PERS.filter((p) => !emp || p.empresa === emp).map(estadoPers).sort((a, b) => (a.dias == null) - (b.dias == null) || (a.dias ?? 0) - (b.dias ?? 0));
-const diasTxt = (p) => p.dias == null ? 'sin fecha de vencimiento' : p.dias < 0 ? 'venció hace ' + (-p.dias) + (p.dias === -1 ? ' día' : ' días') : p.dias === 0 ? 'vence hoy' : 'faltan ' + p.dias + (p.dias === 1 ? ' día' : ' días');
+const diasTxt = (p) => p.pend ? 'pendiente por realizar' : p.dias == null ? 'sin fecha de vencimiento' : p.dias < 0 ? 'venció hace ' + (-p.dias) + (p.dias === -1 ? ' día' : ' días') : p.dias === 0 ? 'vence hoy' : 'faltan ' + p.dias + (p.dias === 1 ? ' día' : ' días');
 function filaPers(p, conEmpresa) {
   const right = h('div', {class: 'r'}, pill(p.est, p.cls), h('small', null, (p.vence ? 'Vence ' + fmt(pd(p.vence)) + ' · ' : '') + diasTxt(p)));
   if (CAN && !conEmpresa) {
@@ -856,7 +857,7 @@ function abrirSS(w) {
   f.addEventListener('submit', async (e) => {
     e.preventDefault(); guardar.disabled = true; guardar.textContent = 'Guardando…';
     const val = {}; for (const k of SSK) val[k] = ins[k].value.trim().slice(0, 60);
-    try { for (const d of w.docs) { const {id, est, cls, dias, ...resto} = d; await DB.collection('personal').doc(id).set({...resto, ...val}); } cerrar(); toast('Seguridad social guardada.'); }
+    try { for (const d of w.docs) { const {id, est, cls, dias, pend, ...resto} = d; await DB.collection('personal').doc(id).set({...resto, ...val}); } cerrar(); toast('Seguridad social guardada.'); }
     catch (x) { guardar.disabled = false; guardar.textContent = 'Guardar'; err.textContent = 'No se pudo guardar. Inténtalo otra vez.'; err.hidden = false; }
   });
   ov.append(f); ov.onclick = (e) => { if (e.target === ov) cerrar(); }; document.body.append(ov); ins.arl.focus();
@@ -867,7 +868,7 @@ function celdaDoc(w, d, tipo) {
     const b = h('button', {class: 'pc-add', type: 'button', title: 'Agregar ' + tipo}, '+ Agregar');
     b.onclick = () => abrirPersonal(w.empresa, null, {trabajador: w.trabajador, cargo: w.cargo, proyecto: w.proyecto, documento: tipo}); return b;
   }
-  const body = [h('span', {class: 'pc-dot ' + d.cls}), h('span', {class: 'pc-t'}, h('b', null, fmt(pd(d.vence))), h('small', null, d.est === 'Al día' ? 'al día' : diasTxt(d)))];
+  const body = [h('span', {class: 'pc-dot ' + d.cls}), h('span', {class: 'pc-t'}, h('b', null, d.pend ? 'No realizado' : fmt(pd(d.vence))), h('small', null, d.est === 'Al día' ? 'al día' : diasTxt(d)))];
   if (!CAN) return h('span', {class: 'pc ' + d.cls}, ...body);
   const b = h('button', {class: 'pc ' + d.cls, type: 'button', title: 'Renovar o corregir'}, ...body); b.onclick = () => abrirPersonal(w.empresa, d); return b;
 }
@@ -880,7 +881,7 @@ function seccionPersonal(R) {
     h('p', null, MODO === 'cliente' ? 'Una fila por trabajador, separada por frente de obra, con la fecha de vencimiento de cada documento. El aviso empieza ' + AVISO_P + ' días antes. Esta información es de consulta y la actualiza su Asesor Externo en SST.' : 'Una fila por trabajador con la fecha de vencimiento de cada documento. Aviso desde ' + AVISO_P + ' días antes. Toca una fecha para renovarla o corregirla. ' + (PERS_CLIENTE.includes(R.empresa) ? 'El cliente también lo ve en su página, solo para consulta (sin cédulas ni soportes).' : 'Solo lo ves tú: no sale en la página del cliente.'))), add));
   if (!ws.length) { sec.append(h('div', {class: 'empty'}, CAN ? 'Aún no hay documentos del personal. Usa «+ Agregar trabajador o documento».' : 'Aún no hay documentos del personal registrados.')); return sec; }
   const n = (e) => ws.filter((w) => w.peor.est === e).length;
-  sec.append(h('div', {class: 'tools'}, pill(ws.length + (ws.length === 1 ? ' trabajador' : ' trabajadores'), 'mute'), n('Vencido') ? pill(n('Vencido') + ' con algo vencido', 'bad') : null, n('Por vencer') ? pill(n('Por vencer') + ' con algo por vencer', 'warn') : null, n('Al día') ? pill(n('Al día') + ' al día', 'ok') : null));
+  sec.append(h('div', {class: 'tools'}, pill(ws.length + (ws.length === 1 ? ' trabajador' : ' trabajadores'), 'mute'), n('Vencido') ? pill(n('Vencido') + ' con algo vencido o sin realizar', 'bad') : null, n('Por vencer') ? pill(n('Por vencer') + ' con algo por vencer', 'warn') : null, n('Al día') ? pill(n('Al día') + ' al día', 'ok') : null));
   const SSV = CAN || ws.some((w) => SSK.some((k) => w[k])) ? SSK : [];
   const frente = (w) => String(w.proyecto || 'Sin frente de obra asignado').split(' · ')[0].trim();
   const grupos = new Map();
