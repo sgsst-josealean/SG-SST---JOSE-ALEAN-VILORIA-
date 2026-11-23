@@ -1007,7 +1007,7 @@ function medidorEntregas(R) {
   const num = h('b', null, '0');
   const ley = h('div', {class: 'md-ley'}, ...[['#E9AEB4', 'Bajo', 'menos de 60'], ['#F2D597', 'En avance', '60 a 85'], ['#A9D7C0', 'Al día', 'más de 85']].map(([c, a, b]) => h('span', null, h('i', {style: 'background:' + c}), h('b', null, a), ' ' + b)));
   return h('section', {class: 'card medidor rise', 'aria-label': tit + ': ' + val + ' de 100'},
-    h('div', {class: 'velo-w'}, velocimetro(val, num), h('div', {class: 'vn'}, num, h('small', null, '%'))),
+    h('div', {class: 'velo-w'}, velocimetro(val, num, R.marca), h('div', {class: 'vn'}, num, h('small', null, '%'))),
     h('div', {class: 'md-tx'}, h('div', {class: 'eyebrow'}, 'Su medidor'), h('h2', null, tit), pill(et, ecl), h('p', null, txt), ley));
 }
 function seccionMedidor(R) {
@@ -1022,19 +1022,25 @@ function seccionMedidor(R) {
   const num = h('b', null, '0');
   const ley = h('div', {class: 'md-ley'}, ...[['#E9AEB4', 'Crítico', 'menos de 60'], ['#F2D597', 'Moderadamente aceptable', '60 a 85'], ['#A9D7C0', 'Aceptable', 'más de 85']].map(([c, a, b]) => h('span', null, h('i', {style: 'background:' + c}), h('b', null, a), ' ' + b)));
   return h('section', {class: 'card medidor rise', 'aria-label': tit + ': ' + val + ' de 100'},
-    h('div', {class: 'velo-w'}, velocimetro(val, num), h('div', {class: 'vn'}, num, h('small', null, '%'))),
+    h('div', {class: 'velo-w'}, velocimetro(val, num, R.marca), h('div', {class: 'vn'}, num, h('small', null, '%'))),
     h('div', {class: 'md-tx'}, h('div', {class: 'eyebrow'}, 'Su medidor'), h('h2', null, tit), R.puntaje == null ? null : pill(et, ecl), h('p', null, txt), ley));
 }
 function medidorCliente(R) { const val = R.puntaje == null ? 0 : Math.round(R.puntaje); const num = h('b', null, '0');
   return h('div', {class: 'velo-w', role: 'img', 'aria-label': 'Medidor: ' + val + ' de 100'}, velocimetro(val, num), h('div', {class: 'vn'}, num, h('small', null, '%'))); }
 /* Medidor tipo reloj con aguja que se mueve hasta el porcentaje al abrir la página */
-function velocimetro(val, num) {
+function velocimetro(val, num, marca) {
   const cx = 100, cy = 100, r = 78, P = (v, rr) => { const a = Math.PI * (1 - v / 100); return [cx + rr * Math.cos(a), cy - rr * Math.sin(a)]; };
   const arco = (a, b, col) => { const [x1, y1] = P(a, r), [x2, y2] = P(b, r); return s('path', {d: `M${x1.toFixed(2)} ${y1.toFixed(2)} A${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`, fill: 'none', stroke: col, 'stroke-width': 14}); };
   const svg = s('svg', {viewBox: '0 0 200 118', class: 'velo', role: 'img', 'aria-hidden': 'true'});
   const [ax, ay] = P(0, r + 9), [bx, by] = P(100, r + 9);
   svg.append(s('path', {d: `M${ax} ${ay} A${r + 9} ${r + 9} 0 0 1 ${bx} ${by}`, fill: 'none', stroke: '#E9DFC6', 'stroke-width': 1.2}));
   svg.append(arco(0, 60, '#E9AEB4'), arco(60, 85, '#F2D597'), arco(85, 100, '#A9D7C0'));
+  if (marca && marca.sigla) { /* Siglas de la empresa de fondo, tenues, con su color (José 2026-11-23, CEM) */
+    const col = marca.color || '#3F6D79', gid = 'sg' + Math.random().toString(36).slice(2, 7);
+    const gd = s('linearGradient', {id: gid, x1: 0, y1: 0, x2: 0, y2: 1}); gd.append(s('stop', {offset: 0, 'stop-color': marca.color2 || col}), s('stop', {offset: 1, 'stop-color': col}));
+    const dg = s('defs', {}); dg.append(gd); svg.append(dg);
+    const sg = s('text', {x: cx, y: cy - 24, 'text-anchor': 'middle', 'font-family': "Sora, 'Segoe UI', sans-serif", 'font-size': 19, 'font-weight': 700, 'letter-spacing': 3, fill: `url(#${gid})`, opacity: .3, class: 'velo-sigla'}); sg.textContent = marca.sigla; svg.append(sg);
+    if (marca.sub) { const sb = s('text', {x: cx + 1, y: cy - 15.5, 'text-anchor': 'middle', 'font-family': "Sora, 'Segoe UI', sans-serif", 'font-size': 5.4, 'font-weight': 600, 'letter-spacing': 2.2, fill: col, opacity: .58, class: 'velo-sigla'}); sb.textContent = marca.sub.toUpperCase(); svg.append(sb); } }
   for (let t = 0; t <= 100; t += 5) { const [x1, y1] = P(t, r - 10), [x2, y2] = P(t, r - (t % 10 ? 14 : 18)); svg.append(s('line', {x1, y1, x2, y2, stroke: '#3F6D79', 'stroke-width': t % 10 ? 0.8 : 1.6, 'stroke-linecap': 'round', opacity: t % 10 ? .55 : .9})); }
   for (const t of [0, 60, 85, 100]) { const [x, y] = t === 0 || t === 100 ? (([px, py]) => [px, py + 10])(P(t, r)) : P(t, r - 30); const tx = s('text', {x, y: y + 3, 'text-anchor': 'middle', 'font-size': 9, 'font-weight': 700, fill: '#3F6D79'}); tx.textContent = String(t); svg.append(tx); }
   const fid = 'led' + Math.random().toString(36).slice(2, 7);
