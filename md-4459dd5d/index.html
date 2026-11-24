@@ -904,7 +904,7 @@ function seccionesProspecto(R) {
   const m = R.marca || {}, st = '--p1:' + (m.color || '#2E7D66') + ';--p2:' + (m.color2 || m.color || '#2E7D66');
   const BEN = [
     ['<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.4-4.4"/>', 'Cero sanciones', 'Con soportes al día, su calificación de la Resolución 0312 de 2019 se sostiene ante el Ministerio del Trabajo y evita multas de hasta 500 salarios mínimos.'],
-    ['<rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M8.5 7V5.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2V7M3.5 12.5h17"/>', 'Más contratos', 'Las constructoras y empresas grandes piden el SG-SST al día y la calificación de estándares mínimos para dejarlo entrar.'],
+    ['<rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M8.5 7V5.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2V7M3.5 12.5h17"/>', 'Obligatorio para todos', 'Todo empleador en Colombia, sin importar su tamaño ni su actividad, debe tener su SG-SST implementado y al día (Decreto 1072 de 2015 y Resolución 0312 de 2019).'],
     ['<path d="M12 20.5s-7.5-4.5-7.5-10A4.5 4.5 0 0 1 12 7.6a4.5 4.5 0 0 1 7.5 2.9c0 5.5-7.5 10-7.5 10z"/>', 'Su gente segura', 'Menos accidentes, menos incapacidades y menos días perdidos: el trabajo sale a tiempo.'],
     ['<path d="M4 19.5h16"/><path d="M6.5 16v-4M11 16V8M15.5 16v-6M20 16V5"/>', 'Todo a la mano', 'Esta página le muestra su puntaje, el avance y lo que debe entregar, en el celular, cuando lo necesite.']];
   const ben = h('section', {class: 'card pr-ben rise', style: st, 'aria-label': 'Lo que su empresa gana'},
@@ -915,7 +915,7 @@ function seccionesProspecto(R) {
     ['HACER', ['Exámenes médicos ocupacionales y perfil sociodemográfico', 'Inducción, reinducción y capacitaciones al personal', 'Inspecciones, entrega de EPP y procedimientos seguros', 'Plan de emergencias, brigada y simulacro', 'Reporte e investigación de incidentes y accidentes']],
     ['VERIFICAR', ['Indicadores del SG-SST', 'Auditoría anual', 'Revisión por la alta dirección']],
     ['ACTUAR', ['Acciones preventivas, correctivas y de mejora', 'Plan de mejoramiento y reporte anual de estándares mínimos al Ministerio del Trabajo']]];
-  const inc = h('section', {class: 'card pr-inc', style: st}, h('div', {class: 'sec-h'}, h('div', null, h('h2', null, 'Qué incluye su SG-SST'), h('p', null, 'Lo elaboramos, lo ponemos en práctica con su equipo y lo dejamos listo para cualquier revisión de la ARL, del cliente o del Ministerio.'))),
+  const inc = h('section', {class: 'card pr-inc', style: st}, h('div', {class: 'sec-h'}, h('div', null, h('h2', null, 'Qué incluye su SG-SST'), h('p', null, 'Lo elaboramos, lo ponemos en práctica con su equipo y lo dejamos listo para cualquier revisión de la ARL o del Ministerio del Trabajo.'))),
     h('div', {class: 'pr-ph'}, ...INC.map(([c, it]) => h('div', {class: 'pr-c', style: '--pc:' + CCOL[c]}, h('span', {class: 'tag'}, CNOM[c]), h('ul', null, ...it.map((x) => h('li', null, x)))))));
   const NOR = [['Ley 1562 de 2012', 'Sistema de Riesgos Laborales. Art. 13: multas de hasta 500 salarios mínimos y, en casos graves, suspensión o cierre de la empresa.'],
     ['Decreto 1072 de 2015', 'Libro 2, Parte 2, Título 4, Capítulo 6: todo empleador debe implementar el SG-SST.'],
@@ -933,7 +933,7 @@ function seccionesProspecto(R) {
     h('div', {class: 'pr-cta-b'}, h('a', {class: 'pr-btn', href: waProspecto(R), target: '_blank', rel: 'noopener'}, 'Quiero poner al día mi SG-SST'),
       h('a', {class: 'pr-tel', href: 'tel:+' + WA_JOSE}, 'O llámeme: 318 445 7427')));
   const MES = [['Mensual', 'Planilla PILA del personal y seguridad social al día'], ['Mensual', 'Inspecciones, preoperacionales y entrega de EPP'], ['Cada mes', 'Capacitaciones del plan anual, con su registro de asistencia'], ['Cuando ocurra', 'Reporte e investigación de incidentes y accidentes'], ['Trimestral', 'Indicadores del SG-SST y seguimiento al plan de trabajo'], ['Anual', 'Exámenes médicos, simulacro y autoevaluación de estándares mínimos']];
-  const mes = h('section', {class: 'card pr-mes', style: st}, h('div', {class: 'sec-h'}, h('div', null, h('h2', null, 'Lo que se alimenta mes a mes'), h('p', null, 'Reportar los estándares es el comienzo. El SG-SST se sostiene con los soportes de cada mes: son los que piden la ARL, sus clientes y el Ministerio del Trabajo en una visita.'))),
+  const mes = h('section', {class: 'card pr-mes', style: st}, h('div', {class: 'sec-h'}, h('div', null, h('h2', null, 'Lo que se alimenta mes a mes'), h('p', null, 'Reportar los estándares es el comienzo. El SG-SST se sostiene con los soportes de cada mes: son la prueba de cumplimiento que exige la norma y que revisan la ARL y el Ministerio del Trabajo en una visita.'))),
     h('div', {class: 'pr-nl'}, ...MES.map(([f, d]) => h('div', {class: 'pr-n'}, h('b', null, f), h('p', null, d)))));
   return [ben, mes, inc, nor, pas, cta];
 }
