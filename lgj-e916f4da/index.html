@@ -430,6 +430,35 @@ button.pc { cursor: pointer; } button.pc:hover { border-color: var(--accent); }
 .clk .cc .rosa { transform-origin: 20px 20px; transition: transform .25s ease-out; }
 @media (prefers-reduced-motion: reduce) { .clk .cc .rosa { transition: none; } }
 @media print { .clk { display: none; } }
+/* Página comercial de prospectos (2026-11-24) */
+.pr-ben, .pr-cta { padding: 22px 26px; margin-bottom: 18px; }
+.pr-ben h2, .pr-cta h2 { margin: 2px 0 14px; font-size: clamp(19px, 2.4vw, 23px); color: var(--p1); }
+.pr-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.pr-it { padding: 14px; border-radius: 14px; background: #FBF8F0; border: 1.5px solid #E6DCC4; }
+.pr-it b { display: block; margin: 10px 0 4px; font-family: var(--f-display); font-size: 16px; color: var(--ink); }
+.pr-it p { margin: 0; font-size: 14px; color: var(--muted); line-height: 1.45; }
+.pr-ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(140deg, var(--p1), var(--p2)); box-shadow: 0 6px 14px rgba(0,0,0,.14); }
+.pr-ic svg { width: 22px; height: 22px; }
+.pr-ph { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.pr-c { padding: 14px 16px; border-radius: 14px; border: 1.5px solid #E6DCC4; border-top: 4px solid var(--pc); background: #FFFFFF; }
+.pr-c .tag { font-family: var(--f-display); font-weight: 700; font-size: 15px; color: var(--pc); }
+.pr-c ul { margin: 8px 0 0; padding-left: 18px; } .pr-c li { font-size: 14.5px; margin: 4px 0; line-height: 1.4; }
+.pr-nl { display: grid; gap: 10px; }
+.pr-n { padding: 12px 14px; border-radius: 12px; background: #FBF8F0; border-left: 4px solid var(--p2); }
+.pr-n b { font-family: var(--f-display); font-size: 15px; color: var(--p1); } .pr-n p { margin: 4px 0 0; font-size: 14.5px; text-align: justify; }
+.pr-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.pr-steps li { display: flex; gap: 10px; padding: 14px; border-radius: 14px; background: #FBF8F0; border: 1.5px solid #E6DCC4; }
+.pr-steps i { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 700; color: #fff; background: linear-gradient(140deg, var(--p1), var(--p2)); }
+.pr-steps b { font-family: var(--f-display); font-size: 15px; } .pr-steps p { margin: 4px 0 0; font-size: 14px; color: var(--muted); line-height: 1.4; }
+.pr-cta { display: flex; gap: 22px; align-items: center; justify-content: space-between; background: linear-gradient(120deg, #FFFFFF 0%, #FBF8F0 100%); border: 2px solid var(--p2); }
+.pr-cta p { margin: 0 0 10px; font-size: 15px; text-align: justify; }
+.pr-firma b { display: block; font-family: var(--f-display); font-size: 15px; } .pr-firma span { font-size: 13px; color: var(--muted); }
+.pr-cta-b { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: none; }
+.pr-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 22px; border-radius: 999px; background: #1FA855; color: #fff; font-family: var(--f-display); font-weight: 700; font-size: 15.5px; text-decoration: none; box-shadow: 0 8px 20px rgba(31,168,85,.35); text-align: center; }
+.pr-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.pr-tel { font-size: 14px; font-weight: 600; color: var(--p1); text-decoration: none; }
+@media (max-width: 900px) { .pr-grid, .pr-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .pr-grid, .pr-steps, .pr-ph { grid-template-columns: 1fr; } .pr-ben, .pr-cta { padding: 18px; } .pr-cta { flex-direction: column; align-items: stretch; } .pr-btn { width: 100%; } }
 </style>
 
 <div class="app">
@@ -486,7 +515,7 @@ function estadoDe(r) {
   return {...r, estado, vence, faltan: vence == null ? null : Math.round((vence - HOY) / 864e5)};
 }
 let REG = [];      // registros de evidencia (en el tablero se cargan en vivo; en la página del cliente vienen incluidos)
-const SYNC = "2026-11-23";
+const SYNC = "2026-11-24";
 let ROWS = [], RES = [];
 let DB = null, ASSETS = null, CAN = false, LIVE = MODO === 'cliente' ? 'vivo' : 'cargando';
 function aplicarRegistros(r) {
@@ -571,6 +600,7 @@ function donut(cnt, total) {
 }
 function novedad(R) {
   const fecha = h('span', {class: 'when'}, 'A hoy, ' + hoyTxt() + ',');
+  if (!R.iniciada && R.prospecto) return h('div', {class: 'nov'}, fecha, MODO === 'cliente' ? ' ' + R.nombre + ' aún no tiene su SG-SST implementado según la Resolución 0312 de 2019. Desde la evaluación inicial, en esta página verá su puntaje, su avance y lo que debe entregar.' : ' ' + R.nombre + ' es un prospecto: su página web es comercial (qué incluye el SG-SST, beneficios, normativa y botón de WhatsApp). Cuando la empresa acepte, se empieza a alimentar como las demás.');
   if (!R.iniciada) return h('div', {class: 'nov mute'}, fecha, ' ' + R.nombre + ' está en la lista de seguimiento, pero su SG-SST aún no se ha iniciado. Los ciclos se empiezan a alimentar cuando se dé la instrucción.');
   const partes = [];
   const c = R.cnt;
@@ -586,11 +616,11 @@ function novedad(R) {
 /* Navegación */
 function buildNav(cur) {
   const nav = document.getElementById('nav'); nav.replaceChildren();
-  const home = h('a', {href: '#panorama', class: cur === 'panorama' ? 'on' : ''}, h('span', {class: 'ic home'}, svgIcon()), h('span', {class: 'nm'}, 'Panorama general', h('small', null, '4 empresas')), h('span', {class: 'sc'}, String(RES.length)));
+  const home = h('a', {href: '#panorama', class: cur === 'panorama' ? 'on' : ''}, h('span', {class: 'ic home'}, svgIcon()), h('span', {class: 'nm'}, 'Panorama general', h('small', null, RES.length + ' empresas')), h('span', {class: 'sc'}, String(RES.length)));
   if (MODO !== 'cliente') nav.append(home);
   for (const R of RES) {
     const a = h('a', {href: '#' + SLUG[R.empresa], class: cur === SLUG[R.empresa] ? 'on' : '', 'aria-label': R.nombre},
-      logoBox(R.empresa, 'ic'), h('span', {class: 'nm'}, CORTO[R.empresa], h('small', null, R.valoracion === 'Sin iniciar' ? 'Sin iniciar' : R.puntaje == null ? R.docs + ' de 60 documentos' : R.valoracion.toLowerCase())),
+      logoBox(R.empresa, 'ic'), h('span', {class: 'nm'}, CORTO[R.empresa], h('small', null, R.prospecto && !R.iniciada ? 'Prospecto' : R.valoracion === 'Sin iniciar' ? 'Sin iniciar' : R.puntaje == null ? R.docs + ' de 60 documentos' : R.valoracion.toLowerCase())),
       h('span', {class: 'sc'}, R.puntaje == null ? '—' : String(Math.round(R.puntaje))));
     nav.append(a);
   }
@@ -691,18 +721,20 @@ function viewEmpresa(main, R) {
     h('div', {class: 'bv-ic', 'aria-hidden': 'true'}, h('span')),
     h('div', {class: 'bv-tx'}, h('div', {class: 'bv-k'}, 'Bienvenido a su SG-SST en línea'),
       R.saludo ? h('div', {class: 'bv-h'}, saludoHora() + ', ' + R.saludo + '.') : null,
-      h('div', {class: 'bv-t'}, 'Haga seguimiento a su Sistema de Gestión de Seguridad y Salud en el Trabajo, siempre al día.'),
-      h('div', {class: 'bv-s'}, 'Consulte su puntaje, el avance por ciclo PHVA y lo que debe entregar. ', SYNC ? h('span', null, 'Última actualización: ', h('b', null, fmt(pd(SYNC))), '.') : null)), puntoBienv(R)));
+      h('div', {class: 'bv-t'}, R.prospecto && !R.iniciada ? 'Este es el espacio donde su empresa tendrá su Sistema de Gestión de Seguridad y Salud en el Trabajo, siempre al día y a la mano.' : 'Haga seguimiento a su Sistema de Gestión de Seguridad y Salud en el Trabajo, siempre al día.'),
+      h('div', {class: 'bv-s'}, R.prospecto && !R.iniciada ? 'Aquí verá su puntaje, el avance por ciclo PHVA y lo que debe entregar, desde el celular o el computador. ' : 'Consulte su puntaje, el avance por ciclo PHVA y lo que debe entregar. ', SYNC ? h('span', null, 'Última actualización: ', h('b', null, fmt(pd(SYNC))), '.') : null)), puntoBienv(R)));
   if (MODO === 'cliente') main.append(fraseSST(), seccionMedidor(R), seccionCiclos(R));
   else main.append(seccionMedidor(R), seccionCiclos(R));
   if (MODO === 'cliente' && window.ubicarReloj) requestAnimationFrame(ubicarReloj);
   main.append(hero, novedad(R));
   const enl = enlaceCliente(R); if (enl) main.append(enl);
 
-  if (!R.iniciada) {
+  if (!R.iniciada && R.prospecto && MODO === 'cliente') { seccionesProspecto(R).forEach((x) => main.append(x)); }
+  else if (!R.iniciada) {
     main.append(h('section', {class: 'card'}, h('div', {class: 'empty'}, MODO === 'cliente' ? 'Su SG-SST está en la lista de seguimiento. A medida que su asesor reciba las evidencias, aquí aparecerán sus ciclos, su puntaje y sus pendientes.' : 'Esta empresa aún no tiene evidencias. Cuando registres la primera en la tabla de abajo, aquí aparecerán sus ciclos, su puntaje y sus pendientes.')));
     if (MODO === 'cliente') { const sp = seccionPersonal(R); if (sp) main.append(sp); return; }
   }
+  if (!R.iniciada && R.prospecto && MODO === 'cliente') return;
   if (R.iniciada) {
 
   const score = h('section', {class: 'card score'}, h('h2', {id: 'puntaje'}, R.solo_ciclo ? 'Avance del SG-SST' : 'Puntaje Res. 0312'), gauge(R.puntaje, true), pill(R.valoracion, VCLS[R.valoracion]),
@@ -864,6 +896,44 @@ function sello(R) {
   if (m.color) { el.style.setProperty('--s1', m.color); el.style.setProperty('--s2', m.color2 || m.color); }
   return el;
 }
+/* Página comercial para prospectos (José 2026-11-24: empresas en 0 %, «quiero enamorarlas»): qué incluye, beneficios, normativa, pasos y botón de WhatsApp */
+const WA_JOSE = '573184457427';
+function waProspecto(R) { return 'https://wa.me/' + WA_JOSE + '?text=' + encodeURIComponent('Hola José, le escribo de ' + R.nombre + '. Vi la página de nuestro SG-SST y quiero información para ponerlo al día.'); }
+function icoP(path) { const sp = h('span', {class: 'pr-ic', 'aria-hidden': 'true'}); sp.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + path + '</svg>'; return sp; }
+function seccionesProspecto(R) {
+  const m = R.marca || {}, st = '--p1:' + (m.color || '#2E7D66') + ';--p2:' + (m.color2 || m.color || '#2E7D66');
+  const BEN = [
+    ['<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.4-4.4"/>', 'Cero sanciones', 'Cumple la Resolución 0312 de 2019 y evita multas del Ministerio del Trabajo de hasta 500 salarios mínimos.'],
+    ['<rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M8.5 7V5.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2V7M3.5 12.5h17"/>', 'Más contratos', 'Las constructoras y empresas grandes piden el SG-SST al día y la calificación de estándares mínimos para dejarlo entrar.'],
+    ['<path d="M12 20.5s-7.5-4.5-7.5-10A4.5 4.5 0 0 1 12 7.6a4.5 4.5 0 0 1 7.5 2.9c0 5.5-7.5 10-7.5 10z"/>', 'Su gente segura', 'Menos accidentes, menos incapacidades y menos días perdidos: el trabajo sale a tiempo.'],
+    ['<path d="M4 19.5h16"/><path d="M6.5 16v-4M11 16V8M15.5 16v-6M20 16V5"/>', 'Todo a la mano', 'Esta página le muestra su puntaje, el avance y lo que debe entregar, en el celular, cuando lo necesite.']];
+  const ben = h('section', {class: 'card pr-ben rise', style: st, 'aria-label': 'Lo que su empresa gana'},
+    h('div', {class: 'eyebrow'}, 'Lo que su empresa gana'), h('h2', null, 'Un SG-SST al día es una inversión, no un gasto'),
+    h('div', {class: 'pr-grid'}, ...BEN.map(([ic, t, d]) => h('div', {class: 'pr-it'}, icoP(ic), h('b', null, t), h('p', null, d)))));
+  const INC = [
+    ['PLANEAR', ['Evaluación inicial de los estándares mínimos (2.3.1)', 'Política, objetivos y responsable del SG-SST', 'Identificación de peligros y valoración de riesgos', 'Plan de trabajo anual y plan de capacitación', 'Matriz legal y conformación de COPASST o Vigía y Comité de Convivencia']],
+    ['HACER', ['Exámenes médicos ocupacionales y perfil sociodemográfico', 'Inducción, reinducción y capacitaciones al personal', 'Inspecciones, entrega de EPP y procedimientos seguros', 'Plan de emergencias, brigada y simulacro', 'Reporte e investigación de incidentes y accidentes']],
+    ['VERIFICAR', ['Indicadores del SG-SST', 'Auditoría anual', 'Revisión por la alta dirección']],
+    ['ACTUAR', ['Acciones preventivas, correctivas y de mejora', 'Plan de mejoramiento y reporte anual de estándares mínimos al Ministerio del Trabajo']]];
+  const inc = h('section', {class: 'card pr-inc', style: st}, h('div', {class: 'sec-h'}, h('div', null, h('h2', null, 'Qué incluye su SG-SST'), h('p', null, 'Lo elaboramos, lo ponemos en práctica con su equipo y lo dejamos listo para cualquier revisión de la ARL, del cliente o del Ministerio.'))),
+    h('div', {class: 'pr-ph'}, ...INC.map(([c, it]) => h('div', {class: 'pr-c', style: '--pc:' + CCOL[c]}, h('span', {class: 'tag'}, CNOM[c]), h('ul', null, ...it.map((x) => h('li', null, x)))))));
+  const NOR = [['Ley 1562 de 2012', 'Sistema de Riesgos Laborales. Art. 13: multas de hasta 500 salarios mínimos y, en casos graves, suspensión o cierre de la empresa.'],
+    ['Decreto 1072 de 2015', 'Libro 2, Parte 2, Título 4, Capítulo 6: todo empleador debe implementar el SG-SST.'],
+    ['Resolución 0312 de 2019', 'Estándares mínimos del SG-SST: evaluación anual, plan de mejoramiento y reporte al Ministerio del Trabajo.'],
+    ['Decreto 472 de 2015', 'Criterios para graduar las multas por incumplir las normas de seguridad y salud en el trabajo.']].concat(R.normas || []);
+  const nor = h('section', {class: 'card pr-nor', style: st}, h('div', {class: 'sec-h'}, h('div', null, h('h2', null, 'Normativa que le aplica'), h('p', null, R.riesgos ? 'Por su actividad (' + R.riesgos + '), estas son las normas que su empresa debe cumplir.' : 'Estas son las normas que su empresa debe cumplir.'))),
+    h('div', {class: 'pr-nl'}, ...NOR.map(([n, d]) => h('div', {class: 'pr-n'}, h('b', null, n), h('p', null, d)))));
+  const PAS = [['Evaluación inicial', 'Revisamos su empresa frente a los estándares mínimos y le damos su puntaje real.'], ['Plan y documentos', 'Armamos el plan de trabajo y los documentos de su SG-SST, a la medida de su actividad.'], ['Implementación', 'Capacitamos, inspeccionamos y acompañamos a su equipo en campo.'], ['Seguimiento en línea', 'En esta página ve su medidor subir y lo que falta, siempre al día.']];
+  const pas = h('section', {class: 'card pr-pas', style: st}, h('div', {class: 'sec-h'}, h('div', null, h('h2', null, 'Cómo trabajamos'), h('p', null, 'Cuatro pasos claros, con un asesor que le responde.'))),
+    h('ol', {class: 'pr-steps'}, ...PAS.map(([t, d], i) => h('li', null, h('i', null, String(i + 1)), h('div', null, h('b', null, t), h('p', null, d))))));
+  const cta = h('section', {class: 'card pr-cta rise', style: st, 'aria-label': 'Ponga al día su SG-SST'},
+    h('div', {class: 'pr-cta-t'}, h('div', {class: 'eyebrow'}, 'Dé el primer paso'), h('h2', null, 'Ponga al día el SG-SST de ' + (CORTO[R.empresa] || R.nombre)),
+      h('p', null, 'Escríbame y agendamos la evaluación inicial. Le explico, sin compromiso, qué necesita su empresa y cómo lo hacemos.'),
+      h('div', {class: 'pr-firma'}, h('b', null, 'José Alean Viloria'), h('span', null, 'Administrador en Salud Ocupacional'))),
+    h('div', {class: 'pr-cta-b'}, h('a', {class: 'pr-btn', href: waProspecto(R), target: '_blank', rel: 'noopener'}, 'Quiero poner al día mi SG-SST'),
+      h('a', {class: 'pr-tel', href: 'tel:+' + WA_JOSE}, 'O llámeme: 318 445 7427')));
+  return [ben, inc, nor, pas, cta];
+}
 /* Secciones desplegables en las páginas de cliente (José 2026-11-23: «el cliente se aburre de bajar y bajar»).
    Arriba quedan abiertos la bienvenida, la frase, el medidor y las novedades; lo demás se abre al tocarlo. */
 const PLG_ABIERTOS = new Set();
@@ -875,6 +945,9 @@ const PLG_IC = {
   personal: '<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16 14.6c2.4-.1 4 1.4 4.5 4.4"/>',
   estandares: '<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.4-4.4"/>',
   enlace: '<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>',
+  incluye: '<path d="M5 7.5l7-4 7 4v9l-7 4-7-4z"/><path d="M5 7.5l7 4 7-4M12 11.5v9"/>',
+  norma: '<path d="M12 3.5v17M5 20.5h14"/><path d="M6 7.5h12M8.5 7.5L5.5 14a3 3 0 0 0 6 0zM15.5 7.5l-3 6.5a3 3 0 0 0 6 0z"/>',
+  pasos: '<path d="M4 18.5h4v-4h4v-4h4v-4h4"/><circle cx="6" cy="18.5" r=".6"/>',
   evidencias: '<path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5M9 13h6M9 16.5h4"/>'
 };
 function plegable(el, titulo, chip, ic, sub, tono) {
@@ -912,6 +985,9 @@ function plegarCliente(main, R0) {
   if (r3) { const n = r3.querySelectorAll('.pi').length; plegable(r3, 'Entregas y pendientes', n ? n + (n === 1 ? ' pendiente' : ' pendientes') : 'Todo al día', 'entregas', 'Lo que debe entregar y sus fechas', n ? 'warn' : ''); }
   const per = porH2('Vencimientos del personal'); if (per) { const pill = txt(per, '.tools .pill'); const mal = per.querySelectorAll('.bad, .warn').length; plegable(per, 'Personal y vencimientos', pill, 'personal', 'Trabajadores del momento, exámenes y cursos', mal ? 'warn' : ''); }
   const est = porH2('Estándares') || porH2('Los 60'); if (est) { const n = est.querySelectorAll('tbody tr:not(.cyc)').length; plegable(est, txt(est, 'h2'), n ? n + ' estándares' : '', 'estandares', 'Calificación de cada ítem de la Res. 0312', 'neu'); }
+  const inc = porH2('Qué incluye'); if (inc) plegable(inc, 'Qué incluye su SG-SST', 'Llave en mano', 'incluye', 'Documentos, actividades y acompañamiento, ciclo por ciclo', 'neu');
+  const nor = porH2('Normativa que'); if (nor) plegable(nor, 'Normativa que le aplica', 'Obligatorio', 'norma', 'Leyes, decretos y resoluciones para su actividad', 'warn');
+  const pas = porH2('Cómo trabajamos'); if (pas) plegable(pas, 'Cómo trabajamos', '4 pasos', 'pasos', 'De la evaluación inicial a su SG-SST al día', 'neu');
   const nov = main.querySelector(':scope > .nov');
   const pri = main.querySelector(':scope > .plg'); if (nov && pri && pri.compareDocumentPosition(nov) & Node.DOCUMENT_POSITION_FOLLOWING) main.insertBefore(nov, pri);
   const ev = porH2('Evidencias registradas'); if (ev) { const n = ev.querySelectorAll('.pi, .ev, li').length; plegable(ev, 'Evidencias registradas', n ? n + (n === 1 ? ' soporte' : ' soportes') : '', 'evidencias', 'Soportes cargados al sistema', 'neu'); }
@@ -1227,10 +1303,11 @@ function medidorEntregas(R) {
     h('div', {class: 'md-tx'}, h('div', {class: 'eyebrow'}, 'Su medidor'), h('h2', null, tit), pill(et, ecl), h('p', null, txt), ley));
 }
 function seccionMedidor(R) {
-  if (MODO === 'cliente' && !R.solo_ciclo) return medidorEntregas(R);
+  if (MODO === 'cliente' && !R.solo_ciclo && !R.prospecto) return medidorEntregas(R);
   const val = R.puntaje == null ? 0 : Math.round(R.puntaje);
   const tit = R.solo_ciclo ? 'Avance de su SG-SST' : 'Puntaje de su SG-SST';
-  const txt = R.puntaje == null ? 'Sin evaluación de estándares mínimos (Res. 0312 de 2019, art. 27), la empresa puede ser multada por el Ministerio del Trabajo (Ley 1562 de 2012, art. 13).'
+  const txt = R.puntaje == null && R.prospecto && !R.iniciada ? 'Hoy su empresa no tiene evaluación de estándares mínimos (Res. 0312 de 2019, art. 27) y puede ser multada por el Ministerio del Trabajo (Ley 1562 de 2012, art. 13). Con la evaluación inicial, la aguja empieza a subir y aquí verá cada punto que gane.'
+    : R.puntaje == null ? 'Sin evaluación de estándares mínimos (Res. 0312 de 2019, art. 27), la empresa puede ser multada por el Ministerio del Trabajo (Ley 1562 de 2012, art. 13).'
     : R.solo_ciclo ? 'La aguja marca los puntos que lleva su SG-SST sobre 100. Hasta ahora se ha evaluado el ciclo ' + CNOM[R.solo_ciclo] + '; los demás ciclos suman a medida que se evalúen.'
     : 'La aguja marca la calificación de su evaluación de estándares mínimos (Res. 0312 de 2019), sobre 100 puntos.';
   const et = R.puntaje == null ? 'Expuesto a sanción' : R.solo_ciclo ? 'Ciclo ' + CNOM[R.solo_ciclo] + ' evaluado' : R.valoracion === 'MODERADAMENTE ACEPTABLE' ? 'Moderadamente aceptable' : R.valoracion.charAt(0) + R.valoracion.slice(1).toLowerCase();
@@ -1358,7 +1435,7 @@ function fraseSST() {
 /* Botón flotante de WhatsApp (solo en la página del cliente): dudas sobre su SG-SST, directo al Asesor Externo */
 if (MODO === 'cliente') {
   const nom = (EMPRESAS[0] && EMPRESAS[0].nombre) || 'mi empresa';
-  const msg = 'Hola José, le escribo de ' + nom + '. Tengo una duda sobre nuestro SG-SST: ';
+  const msg = EMPRESAS[0] && EMPRESAS[0].prospecto ? 'Hola José, le escribo de ' + nom + '. Vi la página de nuestro SG-SST y quiero información para ponerlo al día.' : 'Hola José, le escribo de ' + nom + '. Tengo una duda sobre nuestro SG-SST: ';
   const a = document.createElement('a');
   a.className = 'wa-fab'; a.href = 'https://wa.me/573184457427?text=' + encodeURIComponent(msg); a.target = '_blank'; a.rel = 'noopener';
   a.setAttribute('aria-label', 'Escribir por WhatsApp a su Asesor Externo en SST'); a.title = '¿Dudas sobre su SG-SST? Escríbame por WhatsApp';
