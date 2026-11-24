@@ -905,13 +905,14 @@ function plegarCliente(main, R0) {
   const hero = main.querySelector(':scope > .hero');
   if (hero) plegable(hero, 'Datos de la empresa', '', 'empresa', 'Identificación, responsables y marco normativo');
   const av = porH2('Avance del'); if (av) plegable(av, txt(av, 'h2'), '', 'avance', 'Puntaje obtenido frente al esperado');
+  const avc = porH2('Avance por ciclo'); if (avc) plegable(avc, 'Avance por ciclo del PHVA', '4 ciclos', 'avance', 'Planear, Hacer, Verificar y Actuar: cómo va cada uno', 'neu');
   const enl = porH2('Enlace web del cliente'); if (enl) plegable(enl, 'Enlace web del cliente', '', 'enlace', 'La página que ve el cliente y cómo compartirla');
   const r2 = main.querySelector(':scope > .row2'); if (r2) plegable(r2, 'Puntaje Res. 0312', R.puntaje == null ? 'Sin evaluar' : Math.round(R.puntaje) + ' de 100', 'avance', 'Calificación de la evaluación de estándares mínimos', R.puntaje != null && R.puntaje < 85 ? 'warn' : 'neu');
   const r3 = main.querySelector(':scope > .row3');
   if (r3) { const n = r3.querySelectorAll('.pi').length; plegable(r3, 'Entregas y pendientes', n ? n + (n === 1 ? ' pendiente' : ' pendientes') : 'Todo al día', 'entregas', 'Lo que debe entregar y sus fechas', n ? 'warn' : ''); }
   const per = porH2('Vencimientos del personal'); if (per) { const pill = txt(per, '.tools .pill'); const mal = per.querySelectorAll('.bad, .warn').length; plegable(per, 'Personal y vencimientos', pill, 'personal', 'Trabajadores del momento, exámenes y cursos', mal ? 'warn' : ''); }
   const est = porH2('Estándares') || porH2('Los 60'); if (est) { const n = est.querySelectorAll('tbody tr:not(.cyc)').length; plegable(est, txt(est, 'h2'), n ? n + ' estándares' : '', 'estandares', 'Calificación de cada ítem de la Res. 0312', 'neu'); }
-  const nov = [...main.children].find((s) => !s.classList.contains('plg') && /siguientes novedades|presenta/.test(s.textContent) && /^A hoy/.test(s.textContent.trim()));
+  const nov = main.querySelector(':scope > .nov');
   const pri = main.querySelector(':scope > .plg'); if (nov && pri && pri.compareDocumentPosition(nov) & Node.DOCUMENT_POSITION_FOLLOWING) main.insertBefore(nov, pri);
   const ev = porH2('Evidencias registradas'); if (ev) { const n = ev.querySelectorAll('.pi, .ev, li').length; plegable(ev, 'Evidencias registradas', n ? n + (n === 1 ? ' soporte' : ' soportes') : '', 'evidencias', 'Soportes cargados al sistema', 'neu'); }
 }
@@ -1254,8 +1255,11 @@ function velocimetro(val, num, marca) {
     const col = marca.color || '#3F6D79', gid = 'sg' + Math.random().toString(36).slice(2, 7);
     const gd = s('linearGradient', {id: gid, x1: 0, y1: 0, x2: 0, y2: 1}); gd.append(s('stop', {offset: 0, 'stop-color': marca.color2 || col}), s('stop', {offset: 1, 'stop-color': col}));
     const dg = s('defs', {}); dg.append(gd); svg.append(dg);
-    const sg = s('text', {x: cx, y: cy - 23.5, 'text-anchor': 'middle', 'font-family': "Sora, 'Segoe UI', sans-serif", 'font-size': 22, 'font-weight': 700, 'letter-spacing': 3.2, fill: `url(#${gid})`, opacity: .55, class: 'velo-sigla'}); sg.textContent = marca.sigla; svg.append(sg);
-    if (marca.sub) { const sb = s('text', {x: cx + 1, y: cy - 14.5, 'text-anchor': 'middle', 'font-family': "Sora, 'Segoe UI', sans-serif", 'font-size': 5.4, 'font-weight': 600, 'letter-spacing': 2.2, fill: col, opacity: .7, class: 'velo-sigla'}); sb.textContent = marca.sub.toUpperCase(); svg.append(sb); } }
+    /* Tamaño según el largo, para que nunca toque los números 60 y 85 (José 2026-11-24) */
+    const nS = marca.sigla.length, lsS = nS > 3 ? 2.4 : 3.2, fsS = Math.min(22, (59 / nS - lsS) / .75);
+    const sg = s('text', {x: cx, y: cy - 23.5, 'text-anchor': 'middle', 'font-family': "Sora, 'Segoe UI', sans-serif", 'font-size': fsS.toFixed(1), 'font-weight': 700, 'letter-spacing': lsS, fill: `url(#${gid})`, opacity: .55, class: 'velo-sigla'}); sg.textContent = marca.sigla; svg.append(sg);
+    if (marca.sub) { const nB = marca.sub.length, lsB = nB > 10 ? 1.1 : 2.2, fsB = Math.min(5.4, (58 / nB - lsB) / .68);
+      const sb = s('text', {x: cx + 1, y: cy - 14.5, 'text-anchor': 'middle', 'font-family': "Sora, 'Segoe UI', sans-serif", 'font-size': fsB.toFixed(2), 'font-weight': 600, 'letter-spacing': lsB, fill: col, opacity: .7, class: 'velo-sigla'}); sb.textContent = marca.sub.toUpperCase(); svg.append(sb); } }
   for (let t = 0; t <= 100; t += 5) { const [x1, y1] = P(t, r - 10), [x2, y2] = P(t, r - (t % 10 ? 14 : 18)); svg.append(s('line', {x1, y1, x2, y2, stroke: '#3F6D79', 'stroke-width': t % 10 ? 0.8 : 1.6, 'stroke-linecap': 'round', opacity: t % 10 ? .55 : .9})); }
   for (const t of [0, 60, 85, 100]) { const [x, y] = t === 0 || t === 100 ? (([px, py]) => [px, py + 10])(P(t, r)) : P(t, r - 30); const tx = s('text', {x, y: y + 3, 'text-anchor': 'middle', 'font-size': 9, 'font-weight': 700, fill: '#3F6D79'}); tx.textContent = String(t); svg.append(tx); }
   const fid = 'led' + Math.random().toString(36).slice(2, 7);
