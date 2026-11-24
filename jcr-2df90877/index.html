@@ -600,7 +600,7 @@ function donut(cnt, total) {
 }
 function novedad(R) {
   const fecha = h('span', {class: 'when'}, 'A hoy, ' + hoyTxt() + ',');
-  if (!R.iniciada && R.prospecto) return h('div', {class: 'nov'}, fecha, MODO === 'cliente' ? ' ' + R.nombre + ' aún no tiene su SG-SST implementado según la Resolución 0312 de 2019. Desde la evaluación inicial, en esta página verá su puntaje, su avance y lo que debe entregar.' : ' ' + R.nombre + ' es un prospecto: su página web es comercial (qué incluye el SG-SST, beneficios, normativa y botón de WhatsApp). Cuando la empresa acepte, se empieza a alimentar como las demás.');
+  if (!R.iniciada && R.prospecto) return h('div', {class: 'nov'}, fecha, MODO === 'cliente' ? ' ' + R.nombre + ' aún no tiene su SG-SST implementado según la Resolución 0312 de 2019. Desde la evaluación inicial, en esta página verá su puntaje, su avance y lo que debe entregar.' : ' ' + R.nombre + ' es una empresa por vincular. Ya tiene su página web lista para compartirle, con lo que incluye el SG-SST, sus beneficios, la normativa que le aplica y el botón para escribirte por WhatsApp. Cuando acepte, su SG-SST se empieza a alimentar como el de las demás empresas.');
   if (!R.iniciada) return h('div', {class: 'nov mute'}, fecha, ' ' + R.nombre + ' está en la lista de seguimiento, pero su SG-SST aún no se ha iniciado. Los ciclos se empiezan a alimentar cuando se dé la instrucción.');
   const partes = [];
   const c = R.cnt;
@@ -620,7 +620,7 @@ function buildNav(cur) {
   if (MODO !== 'cliente') nav.append(home);
   for (const R of RES) {
     const a = h('a', {href: '#' + SLUG[R.empresa], class: cur === SLUG[R.empresa] ? 'on' : '', 'aria-label': R.nombre},
-      logoBox(R.empresa, 'ic'), h('span', {class: 'nm'}, CORTO[R.empresa], h('small', null, R.prospecto && !R.iniciada ? 'Prospecto' : R.valoracion === 'Sin iniciar' ? 'Sin iniciar' : R.puntaje == null ? R.docs + ' de 60 documentos' : R.valoracion.toLowerCase())),
+      logoBox(R.empresa, 'ic'), h('span', {class: 'nm'}, CORTO[R.empresa], h('small', null, R.prospecto && !R.iniciada ? 'Por vincular' : R.valoracion === 'Sin iniciar' ? 'Sin iniciar' : R.puntaje == null ? R.docs + ' de 60 documentos' : R.valoracion.toLowerCase())),
       h('span', {class: 'sc'}, R.puntaje == null ? '—' : String(Math.round(R.puntaje))));
     nav.append(a);
   }
