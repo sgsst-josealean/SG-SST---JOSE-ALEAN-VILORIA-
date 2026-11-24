@@ -620,7 +620,7 @@ function buildNav(cur) {
   if (MODO !== 'cliente') nav.append(home);
   for (const R of RES) {
     const a = h('a', {href: '#' + SLUG[R.empresa], class: cur === SLUG[R.empresa] ? 'on' : '', 'aria-label': R.nombre},
-      logoBox(R.empresa, 'ic'), h('span', {class: 'nm'}, CORTO[R.empresa], h('small', null, R.prospecto && !R.iniciada ? 'Por vincular' : R.valoracion === 'Sin iniciar' ? 'Sin iniciar' : R.puntaje == null ? R.docs + ' de 60 documentos' : R.valoracion.toLowerCase())),
+      logoBox(R.empresa, 'ic'), h('span', {class: 'nm'}, CORTO[R.empresa], h('small', null, R.prospecto && !R.iniciada ? (MODO === 'cliente' ? 'Sin avances registrados' : 'Por vincular') : R.valoracion === 'Sin iniciar' ? 'Sin iniciar' : R.puntaje == null ? R.docs + ' de 60 documentos' : R.valoracion.toLowerCase())),
       h('span', {class: 'sc'}, R.puntaje == null ? '—' : String(Math.round(R.puntaje))));
     nav.append(a);
   }
@@ -898,12 +898,12 @@ function sello(R) {
 }
 /* Página comercial para prospectos (José 2026-11-24: empresas en 0 %, «quiero enamorarlas»): qué incluye, beneficios, normativa, pasos y botón de WhatsApp */
 const WA_JOSE = '573184457427';
-function waProspecto(R) { return 'https://wa.me/' + WA_JOSE + '?text=' + encodeURIComponent('Hola José, le escribo de ' + R.nombre + '. Vi la página de nuestro SG-SST y quiero información para ponerlo al día.'); }
+function waProspecto(R) { return 'https://wa.me/' + WA_JOSE + '?text=' + encodeURIComponent('Hola José, le escribo de ' + R.nombre.replace(/\.$/, '') + '. Vi la página de nuestro SG-SST y quiero información para ponerlo al día.'); }
 function icoP(path) { const sp = h('span', {class: 'pr-ic', 'aria-hidden': 'true'}); sp.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + path + '</svg>'; return sp; }
 function seccionesProspecto(R) {
   const m = R.marca || {}, st = '--p1:' + (m.color || '#2E7D66') + ';--p2:' + (m.color2 || m.color || '#2E7D66');
   const BEN = [
-    ['<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.4-4.4"/>', 'Cero sanciones', 'Con soportes al día, su calificación de la Resolución 0312 de 2019 se sostiene ante el Ministerio del Trabajo y evita multas de hasta 500 salarios mínimos.'],
+    ['<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.4-4.4"/>', 'Menos riesgo de sanciones', 'Con soportes al día, su calificación de la Resolución 0312 de 2019 se sostiene ante el Ministerio del Trabajo, que puede imponer multas de hasta 500 salarios mínimos.'],
     ['<rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M8.5 7V5.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2V7M3.5 12.5h17"/>', 'Obligatorio para todos', 'Todo empleador en Colombia, sin importar su tamaño ni su actividad, debe tener su SG-SST implementado y al día (Decreto 1072 de 2015 y Resolución 0312 de 2019).'],
     ['<path d="M12 20.5s-7.5-4.5-7.5-10A4.5 4.5 0 0 1 12 7.6a4.5 4.5 0 0 1 7.5 2.9c0 5.5-7.5 10-7.5 10z"/>', 'Su gente segura', 'Menos accidentes, menos incapacidades y menos días perdidos: el trabajo sale a tiempo.'],
     ['<path d="M4 19.5h16"/><path d="M6.5 16v-4M11 16V8M15.5 16v-6M20 16V5"/>', 'Todo a la mano', 'Esta página le muestra su puntaje, el avance y lo que debe entregar, en el celular, cuando lo necesite.']];
@@ -915,7 +915,7 @@ function seccionesProspecto(R) {
     ['HACER', ['Exámenes médicos ocupacionales y perfil sociodemográfico', 'Inducción, reinducción y capacitaciones al personal', 'Inspecciones, entrega de EPP y procedimientos seguros', 'Plan de emergencias, brigada y simulacro', 'Reporte e investigación de incidentes y accidentes']],
     ['VERIFICAR', ['Indicadores del SG-SST', 'Auditoría anual', 'Revisión por la alta dirección']],
     ['ACTUAR', ['Acciones preventivas, correctivas y de mejora', 'Plan de mejoramiento y reporte anual de estándares mínimos al Ministerio del Trabajo']]];
-  const inc = h('section', {class: 'card pr-inc', style: st}, h('div', {class: 'sec-h'}, h('div', null, h('h2', null, 'Qué incluye su SG-SST'), h('p', null, 'Lo elaboramos, lo ponemos en práctica con su equipo y lo dejamos listo para cualquier revisión de la ARL o del Ministerio del Trabajo.'))),
+  const inc = h('section', {class: 'card pr-inc', style: st}, h('div', {class: 'sec-h'}, h('div', null, h('h2', null, 'Qué incluye su SG-SST'), h('p', null, 'Lo elaboramos, lo ponemos en práctica con su equipo y lo dejamos preparado para las revisiones de la ARL y del Ministerio del Trabajo.'))),
     h('div', {class: 'pr-ph'}, ...INC.map(([c, it]) => h('div', {class: 'pr-c', style: '--pc:' + CCOL[c]}, h('span', {class: 'tag'}, CNOM[c]), h('ul', null, ...it.map((x) => h('li', null, x)))))));
   const NOR = [['Ley 1562 de 2012', 'Sistema de Riesgos Laborales. Art. 13: multas de hasta 500 salarios mínimos y, en casos graves, suspensión o cierre de la empresa.'],
     ['Decreto 1072 de 2015', 'Libro 2, Parte 2, Título 4, Capítulo 6: todo empleador debe implementar el SG-SST.'],
@@ -989,7 +989,7 @@ function plegarCliente(main, R0) {
   const per = porH2('Vencimientos del personal'); if (per) { const pill = txt(per, '.tools .pill'); const mal = per.querySelectorAll('.bad, .warn').length; plegable(per, 'Personal y vencimientos', pill, 'personal', 'Trabajadores del momento, exámenes y cursos', mal ? 'warn' : ''); }
   const est = porH2('Estándares') || porH2('Los 60'); if (est) { const n = est.querySelectorAll('tbody tr:not(.cyc)').length; plegable(est, txt(est, 'h2'), n ? n + ' estándares' : '', 'estandares', 'Calificación de cada ítem de la Res. 0312', 'neu'); }
   const mm = porH2('Lo que se alimenta'); if (mm) plegable(mm, 'Lo que se alimenta mes a mes', 'Cada mes', 'entregas', 'Los soportes que mantienen su SG-SST al día', 'neu');
-  const inc = porH2('Qué incluye'); if (inc) plegable(inc, 'Qué incluye su SG-SST', 'Llave en mano', 'incluye', 'Documentos, actividades y acompañamiento, ciclo por ciclo', 'neu');
+  const inc = porH2('Qué incluye'); if (inc) plegable(inc, 'Qué incluye su SG-SST', 'Acompañamiento completo', 'incluye', 'Documentos, actividades y acompañamiento, ciclo por ciclo', 'neu');
   const nor = porH2('Normativa que'); if (nor) plegable(nor, 'Normativa que le aplica', 'Obligatorio', 'norma', 'Leyes, decretos y resoluciones para su actividad', 'neu');
   const pas = porH2('Cómo trabajamos'); if (pas) plegable(pas, 'Cómo trabajamos', '4 pasos', 'pasos', 'De la revisión a su SG-SST al día, mes a mes', 'neu');
   const nov = main.querySelector(':scope > .nov');
@@ -1439,7 +1439,7 @@ function fraseSST() {
 }
 /* Botón flotante de WhatsApp (solo en la página del cliente): dudas sobre su SG-SST, directo al Asesor Externo */
 if (MODO === 'cliente') {
-  const nom = (EMPRESAS[0] && EMPRESAS[0].nombre) || 'mi empresa';
+  const nom = ((EMPRESAS[0] && EMPRESAS[0].nombre) || 'mi empresa').replace(/\.$/, '');
   const msg = EMPRESAS[0] && EMPRESAS[0].prospecto ? 'Hola José, le escribo de ' + nom + '. Vi la página de nuestro SG-SST y quiero información para ponerlo al día.' : 'Hola José, le escribo de ' + nom + '. Tengo una duda sobre nuestro SG-SST: ';
   const a = document.createElement('a');
   a.className = 'wa-fab'; a.href = 'https://wa.me/573184457427?text=' + encodeURIComponent(msg); a.target = '_blank'; a.rel = 'noopener';
