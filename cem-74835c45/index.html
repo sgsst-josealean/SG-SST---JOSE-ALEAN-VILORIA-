@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* Concepto: consola de control del asesor. Barra lateral tipo carpetas (una por empresa) + área de trabajo con tarjetas de lectura rápida. */
-:root {
+:root { --led: #5FE3AE;
   --bg: #EEE9DD; --panel: #FFFFFF; --panel-2: #E9E3D5; --line: #DCD4C2;
   --ink: #10201B; --muted: #5B6B66; --accent: #2E7D66; --accent-soft: #C8EEDF; --title: #8A6A1F; --side: #143A30; --side-ink: #E6F2ED; --side-muted: #93A9A1;
   --ok: #1E9E6A; --warn: #D99A1E; --bad: #D2493C; --ev: #E07B2E; --mute: #A4B2AD;
@@ -300,14 +300,29 @@ button.pc { cursor: pointer; } button.pc:hover { border-color: var(--accent); }
 .frente-h { color: var(--title); font-size: 15px; margin: 20px 0 8px; padding: 8px 12px; border-left: 4px solid var(--title); background: var(--accent-soft); border-radius: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
 .frente-h span { font-size: 12px; font-weight: 500; opacity: .8; }
 .pc-none { color: var(--muted); }
-/* Reloj analógico de la barra (José 2026-11-23) */
-.reloj-a { flex: none; align-self: center; width: 112px; height: 112px; margin: 4px auto 0; filter: drop-shadow(0 6px 14px rgba(0,0,0,.28)); }
-.reloj-a svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.reloj-a .ra-h, .reloj-a .ra-m, .reloj-a .ra-s { transform-origin: 50px 50px; }
-.reloj-a .ra-s { transition: transform .32s cubic-bezier(.4,2.1,.55,.9); }
-@media (max-width: 860px) { .side .nav { flex: none; } .reloj-a { position: sticky; right: 0; z-index: 2; box-sizing: content-box; width: 50px; height: 50px; margin: 0 0 0 auto; padding-left: 14px; background: linear-gradient(90deg, transparent, var(--side) 12px); filter: none; } .reloj-a svg { filter: drop-shadow(0 3px 8px rgba(0,0,0,.3)); } }
-@media (prefers-reduced-motion: reduce) { .reloj-a .ra-s { transition: none; } }
-@media print { .reloj-a { display: none; } }
+/* Reloj LED de 7 segmentos en la barra (José 2026-11-24: como un reloj digital de pared, en el color de la empresa) */
+.rled { flex: none; align-self: stretch; margin-top: 2px; box-sizing: border-box; padding: 12px 12px 10px; border-radius: 12px; background: radial-gradient(120% 140% at 50% 0%, #111A2B 0%, #04070D 70%); border: 1px solid rgba(255,255,255,.10); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), inset 0 -10px 24px rgba(0,0,0,.6), 0 8px 22px rgba(0,0,0,.35); display: grid; gap: 8px; }
+.rled svg { display: block; width: 100%; height: auto; overflow: visible; }
+.rled .on { fill: var(--led); filter: drop-shadow(0 0 1.4px var(--led)) drop-shadow(0 0 4px color-mix(in srgb, var(--led) 55%, transparent)); }
+.rled .off { fill: var(--led); opacity: .09; }
+.rled .dp { fill: var(--led); filter: drop-shadow(0 0 2px var(--led)); animation: led-blink 1s steps(1) infinite; }
+@keyframes led-blink { 50% { opacity: .12; filter: none; } }
+.led-bt { display: grid; grid-template-columns: 1fr; gap: 7px; }
+.led-dias { display: flex; justify-content: space-between; font: 600 9.5px/1 var(--f-mono, monospace); letter-spacing: .04em; color: var(--led); }
+.led-dias span { opacity: .18; } .led-dias span.hoy { opacity: 1; text-shadow: 0 0 6px var(--led); }
+.led-fe { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; }
+.led-fe > div { display: grid; justify-items: center; gap: 3px; }
+.led-fe svg { height: 15px; width: auto; }
+.led-fe small { font: 600 7.5px/1 Inter, sans-serif; letter-spacing: .14em; color: rgba(255,255,255,.55); }
+.led-m { display: none; }
+@media (max-width: 860px) {
+  .side .nav { flex: none; }
+  .rled { position: sticky; right: 0; z-index: 2; align-self: center; margin: 0 0 0 auto; padding: 6px 9px 5px; gap: 3px; width: 132px; border-radius: 10px; box-shadow: -14px 0 12px -4px var(--side), inset 0 1px 0 rgba(255,255,255,.06), 0 4px 12px rgba(0,0,0,.3); }
+  .led-bt { display: none; }
+  .led-m { display: block; text-align: center; font: 600 8.5px/1 var(--f-mono, monospace); letter-spacing: .12em; color: var(--led); text-shadow: 0 0 5px color-mix(in srgb, var(--led) 70%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .rled .dp { animation: none; } }
+@media print { .rled { display: none; } }
 /* Sello de cierre (José 2026-11-23): «SG-SST» y debajo la sigla de la empresa en su color */
 .sello { --s1: var(--accent); --s2: #5FB89A; margin: 26px auto 10px; text-align: center; display: grid; justify-items: center; gap: 10px; padding: 0 16px; }
 .sello-g { font-family: var(--f-display); font-weight: 700; font-size: clamp(46px, 12vw, 76px); line-height: 1; letter-spacing: .07em; padding-left: .07em; background: linear-gradient(135deg, var(--s1) 10%, var(--s2) 90%); -webkit-background-clip: text; background-clip: text; color: transparent; opacity: .9; filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--s1) 18%, transparent)); }
@@ -786,36 +801,53 @@ function render() {
 /* Color de la barra según la empresa (José 2026-11-23: CEM en su azul) y reloj analógico con segundero */
 function colorBarra(R) {
   const m = (R && R.marca) || {}, st = document.documentElement.style;
-  if (m.barra || m.color) { st.setProperty('--side', m.barra || m.color); st.setProperty('--side-muted', m.barra_muted || '#C3D5F2'); st.setProperty('--side-hi', m.barra_hi || '#9CC8FF'); }
-  else { st.removeProperty('--side'); st.removeProperty('--side-muted'); st.removeProperty('--side-hi'); }
+  if (m.barra || m.color) { st.setProperty('--side', m.barra || m.color); st.setProperty('--side-muted', m.barra_muted || '#C3D5F2'); st.setProperty('--side-hi', m.barra_hi || '#9CC8FF'); st.setProperty('--led', m.led || '#4DA8FF'); }
+  else { st.removeProperty('--side'); st.removeProperty('--side-muted'); st.removeProperty('--side-hi'); st.removeProperty('--led'); }
   const tm = document.querySelector('meta[name="theme-color"]'); if (tm) tm.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--side').trim());
 }
+const SEG7 = [0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F]; /* bits a b c d e f g */
+function digito7(svgNS, x, y, k) {
+  const g = document.createElementNS(svgNS, 'g'); g.setAttribute('transform', 'translate(' + x + ' ' + y + ') scale(' + k + ') skewX(-7)');
+  const R = [[2.3, 0, 7.4, 2.1], [10, 1.9, 2.1, 7.5], [10, 10.6, 2.1, 7.5], [2.3, 18, 7.4, 2.1], [0, 10.6, 2.1, 7.5], [0, 1.9, 2.1, 7.5], [2.3, 9, 7.4, 2.1]];
+  const segs = R.map(([a, b, c, d]) => { const r = document.createElementNS(svgNS, 'rect'); r.setAttribute('x', a); r.setAttribute('y', b); r.setAttribute('width', c); r.setAttribute('height', d); r.setAttribute('rx', 1.05); r.setAttribute('class', 'off'); g.append(r); return r; });
+  g.pon = (n) => { const m = SEG7[n] || 0; segs.forEach((s, i) => s.setAttribute('class', m & (1 << i) ? 'on' : 'off')); };
+  return g;
+}
+function filaLED(ndig, grupos, k, sep) {
+  const NS = 'http://www.w3.org/2000/svg', sv = document.createElementNS(NS, 'svg'), ds = [];
+  let x = 1.5; const W = 12 * k, G = 3.2 * k;
+  grupos.forEach((n, gi) => {
+    for (let i = 0; i < n; i++) { const d = digito7(NS, x, 0.5, k); sv.append(d); ds.push(d); x += W + (i < n - 1 ? G : 0); }
+    if (gi < grupos.length - 1) {
+      if (sep === ':') { for (const cy of [6.2 * k, 14 * k]) { const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', x + 4.2 * k); c.setAttribute('cy', cy); c.setAttribute('r', 1.35 * k); c.setAttribute('class', 'dp'); sv.append(c); } x += 8.4 * k; }
+      else x += 5.5 * k;
+    }
+  });
+  sv.setAttribute('viewBox', '0 0 ' + (x + 1.5).toFixed(1) + ' ' + (20 * k + 1).toFixed(1)); sv.setAttribute('aria-hidden', 'true');
+  sv.pon = (txt) => { [...txt].forEach((c, i) => ds[i] && ds[i].pon(+c)); };
+  return sv;
+}
 function relojAnalogo() {
-  if (document.querySelector('.reloj-a')) return;
+  if (document.querySelector('.rled')) return;
   const side = document.querySelector('.side'); if (!side) return;
-  let marcas = '';
-  for (let i = 0; i < 60; i++) { const g = i % 5 === 0, a = i * 6; marcas += '<line x1="50" y1="' + (g ? 9.5 : 10.5) + '" x2="50" y2="' + (g ? 16 : 13) + '" stroke="' + (g ? '#13284F' : 'rgba(19,40,79,.38)') + '" stroke-width="' + (g ? 2.2 : .75) + '" stroke-linecap="round" transform="rotate(' + a + ' 50 50)"/>'; }
-  const w = h('div', {class: 'reloj-a', role: 'img', 'aria-label': 'Reloj'});
-  w.innerHTML = '<svg viewBox="0 0 100 100"><defs>' +
-    '<radialGradient id="ra-f" cx="45%" cy="35%" r="75%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".7" stop-color="#FBF7EC"/><stop offset="1" stop-color="#EDE4CE"/></radialGradient>' +
-    '<linearGradient id="ra-b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4E2B0"/><stop offset=".5" stop-color="#C9A24E"/><stop offset="1" stop-color="#F1D99A"/></linearGradient></defs>' +
-    '<circle cx="50" cy="50" r="48.5" fill="url(#ra-b)"/><circle cx="50" cy="50" r="45.4" fill="url(#ra-f)"/><circle cx="50" cy="50" r="45.4" fill="none" stroke="rgba(0,0,0,.12)" stroke-width=".6"/>' + marcas +
-    '<text x="50" y="72" text-anchor="middle" font-family="Sora, Inter, sans-serif" font-weight="600" font-size="5.2" letter-spacing="1.3" fill="rgba(19,40,79,.55)">SG-SST</text>' +
-    '<g class="ra-h"><line x1="50" y1="55" x2="50" y2="28" stroke="#13284F" stroke-width="4" stroke-linecap="round"/></g>' +
-    '<g class="ra-m"><line x1="50" y1="57" x2="50" y2="17" stroke="#13284F" stroke-width="2.6" stroke-linecap="round"/></g>' +
-    '<g class="ra-s"><line x1="50" y1="62" x2="50" y2="13" stroke="#C62828" stroke-width="1.1" stroke-linecap="round"/><circle cx="50" cy="62" r="2.4" fill="#C62828"/></g>' +
-    '<circle cx="50" cy="50" r="3.4" fill="#C9A24E"/><circle cx="50" cy="50" r="1.4" fill="#C62828"/></svg>';
+  const w = h('div', {class: 'rled', role: 'timer', 'aria-label': 'Hora de Colombia'});
+  const hora = filaLED(6, [2, 2, 2], 1, ':');
+  const DIAS = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+  const dias = h('div', {class: 'led-dias'}, ...DIAS.map((d) => h('span', null, d)));
+  const fD = filaLED(2, [2], .6), fM = filaLED(2, [2], .6), fA = filaLED(4, [4], .6);
+  const fe = h('div', {class: 'led-fe'}, h('div', null, fD, h('small', null, 'DÍA')), h('div', null, fM, h('small', null, 'MES')), h('div', null, fA, h('small', null, 'AÑO')));
+  const mov = h('div', {class: 'led-m'});
+  w.append(hora, h('div', {class: 'led-bt'}, dias, fe), mov);
   side.append(w);
-  const H = w.querySelector('.ra-h'), M = w.querySelector('.ra-m'), S = w.querySelector('.ra-s');
-  const fmt = new Intl.DateTimeFormat('en-US', {timeZone: 'America/Bogota', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false});
-  let base = null;
+  const fmt = new Intl.DateTimeFormat('en-US', {timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false});
+  const WD = {Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6};
   const tick = () => {
-    const pr = Object.fromEntries(fmt.formatToParts(new Date()).map((x) => [x.type, +x.value]));
-    const hh = pr.hour % 12, mm = pr.minute, ss = pr.second;
-    base = base === null ? ss : base + ((ss - (base % 60) + 60) % 60); /* el segundero siempre avanza, sin girar hacia atrás en el 60 */
-    S.style.transform = 'rotate(' + (base * 6) + 'deg)';
-    M.style.transform = 'rotate(' + ((mm + ss / 60) * 6) + 'deg)';
-    H.style.transform = 'rotate(' + ((hh + mm / 60) * 30) + 'deg)';
+    const p = Object.fromEntries(fmt.formatToParts(new Date()).map((x) => [x.type, x.value]));
+    const hh = String(+p.hour % 24).padStart(2, '0');
+    hora.pon(hh + p.minute + p.second); fD.pon(p.day); fM.pon(p.month); fA.pon(p.year);
+    const wd = WD[p.weekday]; [...dias.children].forEach((s, i) => s.classList.toggle('hoy', i === wd));
+    mov.textContent = DIAS[wd] + ' · ' + p.day + '/' + p.month + '/' + p.year;
+    w.setAttribute('aria-label', 'Hora de Colombia ' + hh + ':' + p.minute);
   };
   tick(); setTimeout(() => { tick(); setInterval(tick, 1000); }, 1000 - (Date.now() % 1000));
 }
