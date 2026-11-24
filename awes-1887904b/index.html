@@ -600,7 +600,7 @@ function donut(cnt, total) {
 }
 function novedad(R) {
   const fecha = h('span', {class: 'when'}, 'A hoy, ' + hoyTxt() + ',');
-  if (!R.iniciada && R.prospecto) return h('div', {class: 'nov'}, fecha, MODO === 'cliente' ? ' ' + R.nombre + ' aún no registra avances de su SG-SST en nuestro sistema de seguimiento. Sus estándares mínimos ya están reportados ante el Ministerio del Trabajo; ahora lo importante es alimentar el sistema mes a mes con sus soportes, para que su calificación se mantenga al día y su empresa esté lista ante cualquier revisión.' : ' ' + R.nombre + ' es una empresa por vincular: ya reportó sus estándares mínimos ante el Ministerio del Trabajo, pero en nuestro sistema aún no registra avances. Ya tiene su página web lista para compartirle, con lo que incluye el SG-SST, sus beneficios, la normativa que le aplica y el botón para escribirte por WhatsApp. Cuando acepte, su SG-SST se empieza a alimentar como el de las demás empresas.');
+  if (!R.iniciada && R.prospecto) return h('div', {class: 'nov'}, fecha, ' el SG-SST de ' + R.nombre + ' presenta las siguientes novedades: sin avances registrados en nuestro sistema de seguimiento; 60 estándares por alimentar mes a mes con sus soportes. Puntaje Res. 0312: 0 de 100.');
   if (!R.iniciada) return h('div', {class: 'nov mute'}, fecha, ' ' + R.nombre + ' está en la lista de seguimiento, pero su SG-SST aún no se ha iniciado. Los ciclos se empiezan a alimentar cuando se dé la instrucción.');
   const partes = [];
   const c = R.cnt;
@@ -716,7 +716,7 @@ function viewEmpresa(main, R) {
   const hero = h('header', {class: 'card hero rise'}, logoBox(R.empresa),
     h('div', {style: 'min-width:0'}, h('div', {class: 'eyebrow'}, 'Empresa'), h('h1', {id: 'empresa'}, R.nombre),
       h('div', {class: 'meta'}, h('span', null, 'Representante legal: ', h('b', null, R.representante)), R.telefono ? h('span', null, (/^3/.test(R.telefono) ? 'Celular: ' : 'Teléfono: '), h('b', null, R.telefono)) : null, h('span', null, R.datos)), R.actividad ? h('div', {class: 'actv'}, h('span', null, 'Actividad económica: '), h('b', null, R.actividad)) : null),
-    R.prospecto && !R.iniciada ? pill('Sin avances registrados', 'warn') : pill(R.valoracion, VCLS[R.valoracion]), marcoNormativo());
+    R.prospecto && !R.iniciada ? pill('Sin avances registrados', 'mute') : pill(R.valoracion, VCLS[R.valoracion]), marcoNormativo());
   if (MODO === 'cliente') main.append(h('section', {class: 'bienv rise', 'aria-label': 'Bienvenida'},
     h('div', {class: 'bv-ic', 'aria-hidden': 'true'}, h('span')),
     h('div', {class: 'bv-tx'}, h('div', {class: 'bv-k'}, 'Bienvenido a su SG-SST en línea'),
@@ -988,9 +988,9 @@ function plegarCliente(main, R0) {
   if (r3) { const n = r3.querySelectorAll('.pi').length; plegable(r3, 'Entregas y pendientes', n ? n + (n === 1 ? ' pendiente' : ' pendientes') : 'Todo al día', 'entregas', 'Lo que debe entregar y sus fechas', n ? 'warn' : ''); }
   const per = porH2('Vencimientos del personal'); if (per) { const pill = txt(per, '.tools .pill'); const mal = per.querySelectorAll('.bad, .warn').length; plegable(per, 'Personal y vencimientos', pill, 'personal', 'Trabajadores del momento, exámenes y cursos', mal ? 'warn' : ''); }
   const est = porH2('Estándares') || porH2('Los 60'); if (est) { const n = est.querySelectorAll('tbody tr:not(.cyc)').length; plegable(est, txt(est, 'h2'), n ? n + ' estándares' : '', 'estandares', 'Calificación de cada ítem de la Res. 0312', 'neu'); }
-  const mm = porH2('Lo que se alimenta'); if (mm) plegable(mm, 'Lo que se alimenta mes a mes', 'Cada mes', 'entregas', 'Los soportes que mantienen su SG-SST al día', 'warn');
+  const mm = porH2('Lo que se alimenta'); if (mm) plegable(mm, 'Lo que se alimenta mes a mes', 'Cada mes', 'entregas', 'Los soportes que mantienen su SG-SST al día', 'neu');
   const inc = porH2('Qué incluye'); if (inc) plegable(inc, 'Qué incluye su SG-SST', 'Llave en mano', 'incluye', 'Documentos, actividades y acompañamiento, ciclo por ciclo', 'neu');
-  const nor = porH2('Normativa que'); if (nor) plegable(nor, 'Normativa que le aplica', 'Obligatorio', 'norma', 'Leyes, decretos y resoluciones para su actividad', 'warn');
+  const nor = porH2('Normativa que'); if (nor) plegable(nor, 'Normativa que le aplica', 'Obligatorio', 'norma', 'Leyes, decretos y resoluciones para su actividad', 'neu');
   const pas = porH2('Cómo trabajamos'); if (pas) plegable(pas, 'Cómo trabajamos', '4 pasos', 'pasos', 'De la revisión a su SG-SST al día, mes a mes', 'neu');
   const nov = main.querySelector(':scope > .nov');
   const pri = main.querySelector(':scope > .plg'); if (nov && pri && pri.compareDocumentPosition(nov) & Node.DOCUMENT_POSITION_FOLLOWING) main.insertBefore(nov, pri);
@@ -1259,7 +1259,7 @@ render();
 function puntoBienv(R) {
   const EC = {'CRÍTICO': ['#FBE3E3', '#A12222'], 'MODERADAMENTE ACEPTABLE': ['#FFF0C9', '#8A5A00'], 'ACEPTABLE': ['#DDF3E8', '#1F6B4F']};
   let big, sub, c = ['#E6EEF0', '#3F6D79'];
-  if (R.puntaje == null && R.prospecto && !R.iniciada) { big = 'Sin avances registrados'; sub = 'En nuestro sistema de seguimiento'; c = ['#FFF0C9', '#8A5A00']; }
+  if (R.puntaje == null && R.prospecto && !R.iniciada) { big = 'Sin avances registrados'; sub = 'En nuestro sistema de seguimiento'; }
   else if (R.puntaje == null) { big = 'Expuesto a sanción'; sub = 'Ley 1562 de 2012, art. 13'; c = ['#FBE3E3', '#A12222']; }
   else if (R.solo_ciclo) { big = 'Ciclo ' + CNOM[R.solo_ciclo]; sub = 'Evaluado'; }
   else { big = 'Ciclo PHVA completo'; sub = R.valoracion === 'MODERADAMENTE ACEPTABLE' ? 'Moderadamente aceptable' : R.valoracion.charAt(0) + R.valoracion.slice(1).toLowerCase(); c = EC[R.valoracion] || c; }
@@ -1308,10 +1308,10 @@ function medidorEntregas(R) {
     h('div', {class: 'md-tx'}, h('div', {class: 'eyebrow'}, 'Su medidor'), h('h2', null, tit), pill(et, ecl), h('p', null, txt), ley));
 }
 function seccionMedidor(R) {
-  if (MODO === 'cliente' && !R.solo_ciclo) return medidorEntregas(R);
+  if (MODO === 'cliente' && !R.solo_ciclo && !R.prospecto) return medidorEntregas(R);
   const val = R.puntaje == null ? 0 : Math.round(R.puntaje);
   const tit = R.solo_ciclo ? 'Avance de su SG-SST' : 'Puntaje de su SG-SST';
-  const txt = R.puntaje == null && R.prospecto && !R.iniciada ? 'Hoy su empresa no tiene evaluación de estándares mínimos (Res. 0312 de 2019, art. 27) y puede ser multada por el Ministerio del Trabajo (Ley 1562 de 2012, art. 13). Con la evaluación inicial, la aguja empieza a subir y aquí verá cada punto que gane.'
+  const txt = R.puntaje == null && R.prospecto && !R.iniciada ? 'La aguja marca la calificación de sus estándares mínimos (Res. 0312 de 2019) registrada en nuestro sistema, sobre 100 puntos. Hoy está en 0 porque aún no hay avances registrados: sube a medida que su empresa alimente el SG-SST mes a mes.'
     : R.puntaje == null ? 'Sin evaluación de estándares mínimos (Res. 0312 de 2019, art. 27), la empresa puede ser multada por el Ministerio del Trabajo (Ley 1562 de 2012, art. 13).'
     : R.solo_ciclo ? 'La aguja marca los puntos que lleva su SG-SST sobre 100. Hasta ahora se ha evaluado el ciclo ' + CNOM[R.solo_ciclo] + '; los demás ciclos suman a medida que se evalúen.'
     : 'La aguja marca la calificación de su evaluación de estándares mínimos (Res. 0312 de 2019), sobre 100 puntos.';
