@@ -515,7 +515,7 @@ function estadoDe(r) {
   return {...r, estado, vence, faltan: vence == null ? null : Math.round((vence - HOY) / 864e5)};
 }
 let REG = [{"id": "cem-114-2026-11", "empresa": "CEM", "numero": "1.1.4", "fecha": "2026-11-11", "cumple": false, "creado": "2026-11-15T23:06:00Z"}, {"id": "cem-231-2026-07-31", "empresa": "CEM", "numero": "2.3.1", "fecha": "2026-07-31", "cumple": true, "creado": "2026-11-19T15:35:00Z"}];      // registros de evidencia (en el tablero se cargan en vivo; en la página del cliente vienen incluidos)
-const SYNC = "2026-11-24";
+const SYNC = "2026-11-25";
 let ROWS = [], RES = [];
 let DB = null, ASSETS = null, CAN = false, LIVE = MODO === 'cliente' ? 'vivo' : 'cargando';
 function aplicarRegistros(r) {
