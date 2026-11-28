@@ -1139,7 +1139,7 @@ function celdaDoc(w, d, tipo) {
     const b = h('button', {class: 'pc-add', type: 'button', title: 'Agregar ' + tipo}, '+ Agregar');
     b.onclick = () => abrirPersonal(w.empresa, null, {trabajador: w.trabajador, cargo: w.cargo, proyecto: w.proyecto, documento: tipo}); return b;
   }
-  const body = [h('span', {class: 'pc-dot ' + d.cls}), h('span', {class: 'pc-t'}, h('b', null, d.pend ? 'No realizado' : fmt(pd(d.vence))), h('small', null, d.est === 'Al día' ? 'al día' : diasTxt(d)))];
+  const body = [h('span', {class: 'pc-dot ' + d.cls}), h('span', {class: 'pc-t'}, h('b', null, d.pend ? 'No realizado' : fmt(pd(d.vence))), h('small', null, d.est === 'Al día' ? 'al día' : diasTxt(d))), (MODO !== 'cliente' && d.nota) ? h('small', {style: 'color:#B4561E;font-weight:600'}, d.nota) : null];
   if (!CAN) return h('span', {class: 'pc ' + d.cls}, ...body);
   const b = h('button', {class: 'pc ' + d.cls, type: 'button', title: 'Renovar o corregir'}, ...body); b.onclick = () => abrirPersonal(w.empresa, d); return b;
 }
